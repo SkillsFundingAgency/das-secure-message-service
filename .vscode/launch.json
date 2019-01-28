@@ -5,19 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "Build Web Project",
-            "program": "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Web/bin/Debug/netcoreapp2.2/SFA.DAS.SecureMessageService.Web.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Web",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": ".NET Core Launch (web)",
+            "name": "Launch SMS Site",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build Web Project",
@@ -48,10 +36,32 @@
             }
         },
         {
-            "name": ".NET Core Attach",
+            "name": "Launch SMS Api",
             "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "request": "launch",
+            "preLaunchTask": "Build Api Project",
+            "program": "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Api/bin/Debug/netcoreapp2.2/SFA.DAS.SecureMessageService.Api.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Api",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "launchBrowser": {
+                "enabled": true,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                },
+                "osx": {
+                    "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
+                }
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
         }
     ]
 }

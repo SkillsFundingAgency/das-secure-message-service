@@ -2,33 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
-using SFA.DAS.SecureMessageService.Core.IRepositories;
 using SFA.DAS.SecureMessageService.Core.Services;
-using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
-using StackExchange.Redis;
-using Microsoft.Extensions.Logging;
+using SFA.DAS.SecureMessageService.Core.IRepositories;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 
-namespace SFA.DAS.SecureMessageService.Web
+namespace SFA.DAS.SecureMessageService.Api
 {
     public class Startup
     {
         private readonly IHostingEnvironment _env;
         public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
-            Configuration = configuration;
             _env = env;
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -40,9 +37,6 @@ namespace SFA.DAS.SecureMessageService.Web
             services.AddSingleton<IMessageService, MessageService>();
             services.AddSingleton<IProtectionRepository, ProtectionRepository>();
             services.AddSingleton<ICacheRepository, CacheRepository>();
-            services.AddSingleton<IDasDistributedCache, DasDistributedCache>();
-            services.AddSingleton<IDasDataProtector, DasDataProtector>();
-            services.AddSingleton<ISecureKeyRepository, SecureKeyRepository>();
 
             try
             {
@@ -58,11 +52,6 @@ namespace SFA.DAS.SecureMessageService.Web
                     {
                         options.Configuration = $"{redisConnectionString},DefaultDatabase=1";
                     });
-
-                    var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
-                    services.AddDataProtection()
-                        .SetApplicationName("das-sms-svc-web")
-                        .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
                 }
             }
             catch (Exception e)
@@ -70,19 +59,11 @@ namespace SFA.DAS.SecureMessageService.Web
                 throw new Exception("Could not create redis cache connection", e);
             }
 
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddAntiforgery(options => 
-            {
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            });
+            services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new Info { Title = "DAS Secure Message Service API", Version = "v1" });
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,31 +75,20 @@ namespace SFA.DAS.SecureMessageService.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.Use(async (context, next) =>
-            {
-                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                context.Response.Headers.Add("X-Xss-Protection", "1");
-                await next();
-            });
-
             // Enable app insights logging
             loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DAS Secure Message Service API");
+                });
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseHttpsRedirection();
+            app.UseMvc();
         }
     }
 }

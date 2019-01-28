@@ -32,6 +32,20 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build Api Project",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Api"
+            ],
+            "type": "process",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Test All Solution Projects",
             "command": "dotnet",
             "args": [
