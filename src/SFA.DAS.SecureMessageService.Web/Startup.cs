@@ -108,6 +108,10 @@ namespace SFA.DAS.SecureMessageService.Web
             // Enable app insights logging
             loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
 
+            // Set up path base
+            var pathBase = Configuration["ApplicationPathBase"];
+            app.UsePathBase($"/{pathBase}");
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

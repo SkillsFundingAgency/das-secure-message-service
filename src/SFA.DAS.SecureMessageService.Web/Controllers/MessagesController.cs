@@ -33,13 +33,14 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
                 return View("InvalidMessageKey");
             }
 
-            // Create url and return view
-            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
-            var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
+            // Create url and return view 
+            var uri =  $"{Request.Scheme}://{Request.Host}{Request.PathBase}/view/{key}";
+
+            var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = uri };
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }
 
-        [HttpGet("messages/{key}")]
+        [HttpGet("view/{key}")]
         public async Task<IActionResult> ConfirmViewMessage(string key)
         {
             var messageExists = await messageService.MessageExists(key);
@@ -49,8 +50,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             return View("ConfirmViewMessage");
         }
 
-
-        [HttpPost("messages/{key}")]
+        [HttpPost("view/{key}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
