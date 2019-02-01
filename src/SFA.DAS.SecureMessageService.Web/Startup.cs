@@ -107,7 +107,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
             // Enable app insights logging
             loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
-
+            app.UsePathBase("/messages");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
