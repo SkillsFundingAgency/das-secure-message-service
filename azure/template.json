@@ -31,6 +31,12 @@
             "metadata": {
                 "description": "The url of the cdn used to serve static content."
             }
+        },
+        "applicationPathBase": {
+            "type": "string",
+            "metadata": {
+                "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
+            }
         }
     },
     "variables": {
@@ -101,6 +107,10 @@
                             {
                                 "name": "cdn:url",
                                 "value": "[parameters('cdnUrl')]"
+                            },
+                            {
+                                "name": "ApplicationPathBase",
+                                "value": "[parameters('applicationPathBase')]"
                             }
 
                         ]
