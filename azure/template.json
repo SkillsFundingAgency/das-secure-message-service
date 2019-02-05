@@ -52,6 +52,12 @@
             "metadata": {
                 "description": "The name of the resource group that holds the keyvault resource."
             }
+        },
+        "applicationPathBase": {
+            "type": "string",
+            "metadata": {
+                "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
+            }
         }
     },
     "variables": {
@@ -148,6 +154,10 @@
                             {
                                 "name": "cdn:url",
                                 "value": "[parameters('cdnUrl')]"
+                            },
+                            {
+                                "name": "ApplicationPathBase",
+                                "value": "[parameters('applicationPathBase')]"
                             }
                         ]
                     },
