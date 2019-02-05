@@ -165,7 +165,7 @@
                         "value": "[parameters('customHostName')]"
                     },
                     "certificateThumbprint": {
-                        "value": "[reference('app-service-certificate').outputs.certificateThumbprint.value]"
+                        "value": "[reference('app-service-certificate', '2017-01-01').outputs.certificateThumbprint.value]"
                     }
                 }
             },
