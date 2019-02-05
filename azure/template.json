@@ -31,25 +31,72 @@
             "metadata": {
                 "description": "The url of the cdn used to serve static content."
             }
+        },
+        "customHostName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "An optional custom hostname to use as a frontend endpoint."
+            }
+        },
+        "keyVaultName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The name of the keyvault that hosts certificates."
+            }
+        },
+        "keyVaultResourceGroup": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The name of the resource group that holds the keyvault resource."
+            }
         }
     },
     "variables": {
+        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
         "appServicePlanTier": "Standard",
         "appServicePlanSize": "1",
         "appServicePlanInstances": 1,
         "redisCacheSKU": "Basic",
         "redisCacheFamily": "C",
-        "redisCacheCapacity": 0
+        "redisCacheCapacity": 0,
+        "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
     },
     "resources": [
         {
+            "condition": "[greater(length(parameters('customHostName')), 0)]",
             "apiVersion": "2017-05-10",
-            "name": "AppServicePlan",
+            "name": "app-service-certificate",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/app-service-plan.json",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-certificate.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyVaultCertificateName": {
+                        "value": "[variables('keyVaultCertificateName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "app-service-plan",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -70,12 +117,12 @@
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "AppService",
+            "name": "app-service",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/tl-platform-building-blocks/master/templates/app-service.json",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -92,7 +139,7 @@
                         "value": [
                             {
                                 "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('AppInsights').outputs.InstrumentationKey.value]"
+                                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
                             },
                             {
                                 "name": "RedisConnectionString",
@@ -102,23 +149,29 @@
                                 "name": "cdn:url",
                                 "value": "[parameters('cdnUrl')]"
                             }
-
                         ]
+                    },
+                    "customHostName": {
+                        "value": "[parameters('customHostName')]"
+                    },
+                    "certificateThumbprint": {
+                        "value": "[reference('app-service-certificate').outputs.certificateThumbprint.value]"
                     }
                 }
             },
             "dependsOn": [
-                "AppServicePlan"
+                "app-service-plan",
+                "app-service-certificate"
             ]
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "redis",
+            "name": "redis-cache",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/redis.json",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'redis.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -137,18 +190,17 @@
                     "enableNonSslPort": {
                         "value": false
                     }
-
                 }
             }
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "AppInsights",
+            "name": "app-insights",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/application-insights.json",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
