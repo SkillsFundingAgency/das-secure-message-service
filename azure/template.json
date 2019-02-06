@@ -134,7 +134,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/app_service_api_version/templates/app-service.json')",
+                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/app_service_api_version/templates/app-service.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
