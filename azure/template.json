@@ -58,6 +58,12 @@
             "metadata": {
                 "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
             }
+        },
+        "ipSecurityRestrictions": {
+            "type": "array",
+            "metadata": {
+                "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
+            }
         }
     },
     "variables": {
@@ -166,6 +172,9 @@
                     },
                     "certificateThumbprint": {
                         "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+                    },
+                    "ipSecurityRestrictions": {	
+                        "value": "[parameters('ipSecurityRestrictions')]"	
                     }
                 }
             },
