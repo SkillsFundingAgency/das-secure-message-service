@@ -160,11 +160,6 @@ namespace SFA.DAS.SecureMessageService.Web
             {
                 options.AddPolicy("ValidOrgsOnly", policy => policy.Requirements.Add(new ValidOrganizationRequirement(Configuration["ValidOrganizations"])));
             });
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.AccessDeniedPath = "/Some/Path";
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
