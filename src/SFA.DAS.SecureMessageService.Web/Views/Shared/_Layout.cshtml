@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,6 +10,12 @@
 </head>
 
 <body class="govuk-template__body {{ bodyClass }}">
+
+    @{
+        var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
+        var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == "GitHub").Value;
+    }
+
     <script>
         document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
     </script>
@@ -27,6 +32,10 @@
         </div>
     </header>
     <div class="govuk-width-container">
+        @if(!String.IsNullOrEmpty(userLogin))
+        {
+            <span class="govuk-body-s">You are logged in as <a class="govuk-link" href="@userProfileUrl">@userLogin</a></span>
+        }
         <div class="govuk-phase-banner">
             
             <p class="govuk-phase-banner__content"><strong class="govuk-tag govuk-phase-banner__content__tag ">

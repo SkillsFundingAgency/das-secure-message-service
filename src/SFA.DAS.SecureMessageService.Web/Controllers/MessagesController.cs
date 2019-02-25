@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
+    [Authorize]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
@@ -48,7 +50,6 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
 
             return View("ConfirmViewMessage");
         }
-
 
         [HttpPost("messages/{key}")]
         [ValidateAntiForgeryToken]
