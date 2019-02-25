@@ -23,14 +23,11 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
     {
         private readonly ILogger logger;
         private readonly IMessageService messageService;
-
-        private readonly IOptions<SharedConfig> configuration;
-
-        public HomeController(ILogger<HomeController> _logger, IMessageService _messageService, IOptions<SharedConfig> _configuration)
+        
+        public HomeController(ILogger<HomeController> _logger, IMessageService _messageService)
         {
             logger = _logger;
             messageService = _messageService;
-            configuration = _configuration;
         }
 
         [HttpGet("")]
@@ -53,21 +50,6 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             logger.LogInformation(1, $"Saving message: {key}");
 
             return RedirectToAction("ShareMessageUrl", "Messages", new { key = key });
-        }
-
-        [AllowAnonymous]
-        [HttpGet("LogOut")]
-        public async Task<IActionResult> LogOut()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View("loggedOut");
-        }
-
-        [AllowAnonymous]
-        [HttpGet("accessdenied")]
-        public IActionResult AccessDenied()
-        {
-            return View("AccessDenied", new AccessDeniedViewModel(configuration.Value.ValidOrganizations));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
