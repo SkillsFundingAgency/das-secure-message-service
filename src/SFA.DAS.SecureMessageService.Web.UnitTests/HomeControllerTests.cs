@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.SecureMessageService.Core.Entities;
@@ -19,7 +18,6 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
     {
         protected Mock<ILogger<HomeController>> logger;
         protected Mock<IMessageService> messageService;
-        protected Mock<IOptions<SharedConfig>> configuration;
         protected HomeController controller;
         protected IndexViewModel indexViewModel;
         protected string testMessage = "testmessage";
@@ -31,8 +29,7 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
         {
             logger = new Mock<ILogger<HomeController>>();
             messageService = new Mock<IMessageService>();
-            configuration = new Mock<IOptions<SharedConfig>>();
-            controller = new HomeController(logger.Object, messageService.Object, configuration.Object);
+            controller = new HomeController(logger.Object, messageService.Object);
             indexViewModel = new IndexViewModel()
             {
                 Message = testMessage,
