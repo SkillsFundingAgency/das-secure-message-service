@@ -43,7 +43,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             // Assert
         }
 
-                [Test]
+        [Test]
         public async Task HandleRequirementAsync_ReturnsSuccessFalseWhenClaimsExistButNoValidOrgsArePresent()
         {
             // Arrange
