@@ -101,15 +101,24 @@ namespace SFA.DAS.SecureMessageService.Web
                 })
                 .AddCookie(options =>
                     {
+                        options.Cookie.Name = "sms-auth";
                         options.AccessDeniedPath = "/AccessDenied/";
                         options.ReturnUrlParameter = "/";
+                        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                        // options.Cookie.SameSite = SameSiteMode.Strict;
+                        options.SlidingExpiration = true;
+                        options.Events.OnSigningIn = (context) =>
+                        {
+                            context.CookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(30);
+                            return Task.CompletedTask;
+                        };
                     }
                 )
                 .AddOAuth("GitHub", options =>
                 {
                     options.ClientId = Configuration["GitHub:ClientId"];
                     options.ClientSecret = Configuration["GitHub:ClientSecret"];
-                    options.CallbackPath = new PathString("/signin");
+                    options.CallbackPath = new PathString("/signin-github");
                     options.Scope.Add("read:org");
 
                     options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
