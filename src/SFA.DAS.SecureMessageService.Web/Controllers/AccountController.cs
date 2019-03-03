@@ -25,7 +25,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
 
         private readonly IOptions<SharedConfig> configuration;
 
-        public AccountController(ILogger<HomeController> _logger, IOptions<SharedConfig> _configuration)
+        public AccountController(ILogger<AccountController> _logger, IOptions<SharedConfig> _configuration)
         {
             logger = _logger;
             configuration = _configuration;
