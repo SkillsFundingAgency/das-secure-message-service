@@ -12,8 +12,8 @@
 <body class="govuk-template__body {{ bodyClass }}">
 
     @{
-        var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
-        var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == "GitHub").Value;
+        <!-- var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
+        var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == "GitHub").Value; -->
     }
 
     <script>
@@ -32,8 +32,10 @@
         </div>
     </header>
     <div class="govuk-width-container">
-        @if(!String.IsNullOrEmpty(userLogin))
+        @if(Context.User.Identity.IsAuthenticated)
         {
+            var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
+            var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == "GitHub").Value;
             <span class="govuk-body-s">You are logged in as <a class="govuk-link" href="@userProfileUrl">@userLogin</a></span>
         }
         <div class="govuk-phase-banner">
