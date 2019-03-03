@@ -32,13 +32,20 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("LogOut")]
-        public async Task<IActionResult> LogOut()
+        [HttpGet("SignIn")]
+        public async Task SignIn(string returnUrl = "/")
         {
-            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
-            logger.LogInformation(1, $"The user {user} has logged out.");
+            logger.LogInformation(1, $"A user has signed in.");
+            await HttpContext.ChallengeAsync(new AuthenticationProperties() { RedirectUri = returnUrl});
+        }
+
+        [AllowAnonymous]
+        [HttpGet("SignOut")]
+        public async Task<IActionResult> SignOut()
+        {
+            logger.LogInformation(1, $"A user has signed out.");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View("loggedOut");
+            return View("SignOut");
         }
 
         [AllowAnonymous]
