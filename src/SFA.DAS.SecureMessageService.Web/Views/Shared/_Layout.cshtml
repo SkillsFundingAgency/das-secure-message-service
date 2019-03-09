@@ -22,24 +22,34 @@
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
-    <header class="govuk-header " role="banner" data-module="header">
+    <header class="govuk-header das-header " role="banner" data-module="header">
         <div class="govuk-header__container govuk-width-container">
-            <div class="govuk-header__content">
+            <div class="govuk-header__content" style="width:100%"></div>
                 <a href="/" class="govuk-header__link govuk-header__link--service-name">
                     Secure Message Service
                 </a>
+                <span id="navigation" class="govuk-header__navigation das-float-right" aria-hidden="true">
+                        @if(Context.User.Identity.IsAuthenticated)
+                        {
+                            var issuer = "GitHub";
+                            var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == issuer).Value;
+                            var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == issuer).Value;
+                            var userAvatarUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:avatar" && c.Issuer == issuer).Value;
+
+                            <a href="@userProfileUrl">
+                                <img src="@userAvatarUrl&s=30" />
+                            </a>
+                        }
+                        else 
+                        {
+                            <a class="govuk-header__link" asp-controller="Account" asp-action="SignIn">Sign In</a>
+                        }
+                </span>
             </div>
         </div>
     </header>
     <div class="govuk-width-container">
-        @if(Context.User.Identity.IsAuthenticated)
-        {
-            var userLogin = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:login" && c.Issuer == "GitHub").Value;
-            var userProfileUrl = Context.User.Claims.FirstOrDefault(c => c.Type == "urn:github:url" && c.Issuer == "GitHub").Value;
-            <span class="govuk-body-s">You are logged in as <a class="govuk-link" href="@userProfileUrl">@userLogin</a></span>
-        }
         <div class="govuk-phase-banner">
-            
             <p class="govuk-phase-banner__content"><strong class="govuk-tag govuk-phase-banner__content__tag ">
                     preview
                 </strong>
