@@ -32,20 +32,35 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("SignIn")]
         public async Task SignIn(string returnUrl = "/")
         {
             logger.LogInformation(1, $"A user has signed in.");
             await HttpContext.ChallengeAsync(new AuthenticationProperties() { RedirectUri = returnUrl});
         }
 
-        [AllowAnonymous]
-        [HttpGet("SignOut")]
         public async Task<IActionResult> SignOut()
         {
-            logger.LogInformation(1, $"A user has signed out.");
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View("SignOut");
+
+            if (User.Identity.IsAuthenticated) {
+                logger.LogInformation(1, $"A user has signed out.");
+                var callbackUrl = Url.RouteUrl("SignedOut", "Account", null, Request.Scheme);
+
+                foreach (var cookie in Request.Cookies.Keys)
+                {
+                    Response.Cookies.Delete(cookie);
+                }
+
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+
+            return RedirectToAction("SignedOut");
+        }
+
+        [AllowAnonymous]
+        public IActionResult SignedOut()
+        {
+            logger.LogInformation(1, $"Redirecting user to signed out page.");
+            return View("SignedOut");
         }
 
         [AllowAnonymous]
