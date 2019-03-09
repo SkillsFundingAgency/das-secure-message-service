@@ -40,13 +40,13 @@ namespace SFA.DAS.SecureMessageService.Web
             services.AddSingleton<ISecureKeyRepository, SecureKeyRepository>();
             services.AddSingleton<IAuthorizationHandler, ValidOrganizationHandler>();
 
-            try
+            if (_env.IsDevelopment())
             {
-                if (_env.IsDevelopment())
-                {
-                    services.AddDistributedMemoryCache();
-                }
-                else
+                services.AddDistributedMemoryCache();
+            }
+            else
+            {
+                try
                 {
                     var redisConnectionString = Configuration["RedisConnectionString"];
 
@@ -56,14 +56,15 @@ namespace SFA.DAS.SecureMessageService.Web
                     });
 
                     var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
+
                     services.AddDataProtection()
                         .SetApplicationName("das-sms-svc-web")
                         .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
                 }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Could not create redis cache connection", e);
+                catch (Exception e)
+                {
+                    throw new Exception("Could not create redis cache connection", e);
+                }
             }
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -80,6 +81,7 @@ namespace SFA.DAS.SecureMessageService.Web
             });
 
             services.AddGutHubAuthentication(Configuration);
+
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ValidOrgsOnly", policy => policy.Requirements.Add(new ValidOrganizationRequirement(Configuration["ValidOrganizations"])));
@@ -87,17 +89,18 @@ namespace SFA.DAS.SecureMessageService.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
             app.UseAuthentication();
 
-            if (env.IsDevelopment())
+            if (_env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
+
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
