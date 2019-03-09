@@ -42,6 +42,7 @@ namespace SFA.DAS.SecureMessageService.Web
             services.AddSingleton<ICacheRepository, CacheRepository>();
             services.AddSingleton<IDasDistributedCache, DasDistributedCache>();
             services.AddSingleton<IDasDataProtector, DasDataProtector>();
+            services.AddSingleton<ISecureKeyRepository, SecureKeyRepository>();
 
             try
             {

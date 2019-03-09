@@ -13,11 +13,13 @@ namespace SFA.DAS.SecureMessageService.Core.Services
     {
         private readonly IProtectionRepository protectionRepository;
         private readonly ICacheRepository cacheRepository;
+        private readonly ISecureKeyRepository secureKeyRepository;
 
-        public MessageService(IProtectionRepository _protectionRepository, ICacheRepository _cacheRepository)
+        public MessageService(IProtectionRepository _protectionRepository, ICacheRepository _cacheRepository, ISecureKeyRepository _secureKeyRepository)
         {
             protectionRepository = _protectionRepository;
             cacheRepository = _cacheRepository;
+            secureKeyRepository = _secureKeyRepository;
         }
 
         public async Task<string> Create(string message, int ttl)
@@ -25,7 +27,7 @@ namespace SFA.DAS.SecureMessageService.Core.Services
             try
             {
                 // Generate storage key
-                var key = Guid.NewGuid().ToString();
+                var key = secureKeyRepository.Create();
 
                 // Protect string
                 var protectedMessage = protectionRepository.Protect(message);
