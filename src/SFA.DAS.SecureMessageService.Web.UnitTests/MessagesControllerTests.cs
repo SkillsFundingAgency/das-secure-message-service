@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Controllers;
-using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.UnitTests
 {
@@ -22,6 +17,8 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
         protected Mock<IMessageService> messageService;
         protected ControllerContext controllerContext;
         protected MessagesController controller;
+        protected CreateMessageViewModel createMessageViewModel;
+        protected int testTtl = 1;
         protected string testHttpScheme = "https";
         protected string testHostname = "localhost";
         protected string testKey = "36ae5a4a-068c-450a-9edf-f5f56d74f13e";
@@ -44,7 +41,59 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             };
             controller = new MessagesController(messageService.Object, logger.Object);
             controller.ControllerContext = controllerContext;
+            createMessageViewModel = new CreateMessageViewModel()
+            {
+                Message = testMessage,
+                Ttl = testTtl
+            };
+        }
 
+        [Test]
+        public void CreateMessage_ReturnsExpectedViewResult()
+        {
+            // Act
+            var result = controller.CreateMessage();
+
+            // Assert
+            Assert.AreEqual(typeof(ViewResult), result.GetType());
+            var actualViewResult = result as ViewResult;
+            Assert.IsNotNull(actualViewResult);
+            Assert.AreEqual(actualViewResult.Model.GetType(), typeof(CreateMessageViewModel));
+            Assert.AreEqual("CreateMessage", actualViewResult.ViewName);
+        }
+
+        [Test]
+        public async Task PostCreateMessage_SuccessfullyRedirectsOnFormPost()
+        {
+            // Arrange
+            messageService.Setup(c => c.Create(testMessage, testTtl)).ReturnsAsync(testKey);
+
+            // Act
+            var result = await controller.PostCreateMessage(createMessageViewModel);
+
+            // Assert
+            Assert.IsNotNull(result);
+            var actualResult = result as RedirectToActionResult;
+            Assert.IsNotNull(actualResult);
+            Assert.AreEqual("ShareMessageUrl", actualResult.ActionName);
+            Assert.AreEqual("Messages", actualResult.ControllerName);
+            Assert.AreEqual(new RouteValueDictionary(new { key = testKey }), actualResult.RouteValues);
+            messageService.VerifyAll();
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        public async Task PostCreateMessage_ReturnsBadRequestWhenNoMessage(string message)
+        {
+            // Arrange
+            createMessageViewModel.Message = message;
+            
+            // Act
+            var result = await controller.PostCreateMessage(createMessageViewModel);
+
+            // Assert
+            var actualResult = result as BadRequestResult;
+            Assert.IsNotNull(actualResult);
         }
 
         [Test]
@@ -60,7 +109,7 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             var actualResult = result as ViewResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(typeof(ShowMessageUrlViewModel), actualResult.Model.GetType());
-            Assert.AreEqual(((ShowMessageUrlViewModel)actualResult.Model).Url, $"{testHttpScheme}://{testHostname}:{testPort}/messages/{testKey}");
+            Assert.AreEqual(((ShowMessageUrlViewModel)actualResult.Model).Url, $"{testHttpScheme}://{testHostname}:{testPort}/Messages/{testKey}");
             messageService.VerifyAll();
         }
 

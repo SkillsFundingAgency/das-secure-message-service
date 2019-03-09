@@ -1,12 +1,9 @@
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Controllers;
 using SFA.DAS.SecureMessageService.Web.Models;
@@ -19,7 +16,6 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
         protected Mock<ILogger<HomeController>> logger;
         protected Mock<IMessageService> messageService;
         protected HomeController controller;
-        protected IndexViewModel indexViewModel;
         protected string testMessage = "testmessage";
         protected int testTtl = 1;
         protected string testKey = "somekey1234";
@@ -30,16 +26,18 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             logger = new Mock<ILogger<HomeController>>();
             messageService = new Mock<IMessageService>();
             controller = new HomeController(logger.Object, messageService.Object);
-            indexViewModel = new IndexViewModel()
-            {
-                Message = testMessage,
-                Ttl = testTtl
-            };
+            var controllerContext = new Mock<ControllerContext>();
         }
 
         [Test]
-        public void Index_ReturnsExpectedViewResult()
+        public void Index_ReturnsExpectedResultWhenUserIsNotAuthenticated()
         {
+            // Arrange
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+
+            };
             // Act
             var result = controller.Index();
 
@@ -47,43 +45,32 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             Assert.AreEqual(typeof(ViewResult), result.GetType());
             var actualViewResult = result as ViewResult;
             Assert.IsNotNull(actualViewResult);
-            Assert.AreEqual(actualViewResult.Model.GetType(), typeof(IndexViewModel));
             Assert.AreEqual("Index", actualViewResult.ViewName);
         }
 
-
         [Test]
-        public async Task IndexSubmitMessage_SuccessfullyRedirectsOnFormPost()
+        public void Index_ReturnsExpectedResultWhenUserIsAuthenticated()
         {
             // Arrange
-            messageService.Setup(c => c.Create(testMessage, testTtl)).ReturnsAsync(testKey);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, "username")
+                    }, "someAuthTypeName"))
+                }
+            };
 
             // Act
-            var result = await controller.IndexSubmitMessage(indexViewModel);
+            var result = controller.Index();
 
             // Assert
-            Assert.IsNotNull(result);
-            var actualResult = result as RedirectToActionResult;
-            Assert.IsNotNull(actualResult);
-            Assert.AreEqual("ShareMessageUrl", actualResult.ActionName);
-            Assert.AreEqual("Messages", actualResult.ControllerName);
-            Assert.AreEqual(new RouteValueDictionary(new { key = testKey }), actualResult.RouteValues);
-            messageService.VerifyAll();
-        }
-
-        [TestCase("")]
-        [TestCase(null)]
-        public async Task IndexSubmitMessage_ReturnsBadRequestWhenNoMessage(string message)
-        {
-            // Arrange
-            indexViewModel.Message = message;
-            
-            // Act
-            var result = await controller.IndexSubmitMessage(indexViewModel);
-
-            // Assert
-            var actualResult = result as BadRequestResult;
-            Assert.IsNotNull(actualResult);
+            Assert.AreEqual(typeof(RedirectToActionResult), result.GetType());
+            var actualRedirectToActionResult = result as RedirectToActionResult;
+            Assert.IsNotNull(actualRedirectToActionResult);
+            Assert.AreEqual("CreateMessage", actualRedirectToActionResult.ActionName);
         }
 
         [Test]
