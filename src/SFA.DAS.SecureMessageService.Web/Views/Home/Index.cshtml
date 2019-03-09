@@ -1,6 +1,5 @@
 ﻿@{
     ViewData["Title"] = "Home";
-    @model IndexViewModel;
 }
 
 <div class="govuk-grid-row">
@@ -9,20 +8,7 @@
             Create a message
         </h1>
 
-        <div class="govuk-form-group">
-            @using (Html.BeginForm(FormMethod.Post, new { @class = "govuk-form-group" } ))
-            {
-                @Html.AntiForgeryToken()
-                @Html.Label("Message",null, new { @class = "govuk-visually-hidden"} )
-                @Html.TextAreaFor(m => m.Message, new { @class="govuk-textarea", @rows="10", @cols="50", @autofocus="true", required="true", autocomplete="off" })
-                @Html.DropDownListFor(m => m.Ttl,
-                                            new SelectList(Model.TtlValues,"Key","Value"),
-                                            new { @class = "govuk-select" })
+        <p class="govuk-body">You must sign in to use this service.</p>
 
-                <button type="submit" id="submit" class="govuk-button">
-                    Generate URL
-                </button>
-            }
-        </div>
     </div>
 </div>
