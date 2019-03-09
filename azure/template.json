@@ -1,247 +1,256 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service."
-            }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the app service."
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the app service plan."
+      }
+    },
+    "redisCacheName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the redis cache."
+      }
+    },
+    "redisConnectionString": {
+      "type": "string",
+      "metadata": {
+        "description": "Connection string for the redis cache."
+      }
+    },
+    "cdnUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "The url of the cdn used to serve static content."
+      }
+    },
+    "gitHubClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "The client id used for authentication."
+      }
+    },
+    "gitHubClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The client secret used for authentication."
+      }
+    },
+    "customHostName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "An optional custom hostname to use as a frontend endpoint."
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the keyvault that hosts certificates."
+      }
+    },
+    "keyVaultResourceGroup": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the resource group that holds the keyvault resource."
+      }
+    },
+    "applicationPathBase": {
+      "type": "string",
+      "metadata": {
+        "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
+      }
+    },
+    "ipSecurityRestrictions": {
+      "type": "array",
+      "metadata": {
+        "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
+      }
+    }
+  },
+  "variables": {
+    "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
+    "appServicePlanTier": "Standard",
+    "appServicePlanSize": "1",
+    "appServicePlanInstances": 1,
+    "redisCacheSKU": "Basic",
+    "redisCacheFamily": "C",
+    "redisCacheCapacity": 0,
+    "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
+  },
+  "resources": [
+    {
+      "condition": "[greater(length(parameters('customHostName')), 0)]",
+      "apiVersion": "2017-05-10",
+      "name": "app-service-certificate",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'), 'app-service-certificate.json')]",
+          "contentVersion": "1.0.0.0"
         },
-        "appServicePlanName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service plan."
-            }
-        },
-        "redisCacheName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the redis cache."
-            }
-        },
-        "redisConnectionString": {
-            "type": "string",
-            "metadata": {
-                "description": "Connection string for the redis cache."
-            }
-        },
-        "cdnUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "The url of the cdn used to serve static content."
-            }
-        },
-        "customHostName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "An optional custom hostname to use as a frontend endpoint."
-            }
-        },
-        "keyVaultName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The name of the keyvault that hosts certificates."
-            }
-        },
-        "keyVaultResourceGroup": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The name of the resource group that holds the keyvault resource."
-            }
-        },
-        "applicationPathBase": {
-            "type": "string",
-            "metadata": {
-                "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
-            }
-        },
-        "aspnetCoreEnvironment": {
-            "type": "string",
-            "defaultValue": "Production",
-            "metadata": {
-                "description": "Value for ASPNETCORE_ENVIRONMENT that will determine how the app runs"
-            }
-        },
-        "ipSecurityRestrictions": {
-            "type": "array",
-            "metadata": {
-                "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
-            }
+        "parameters": {
+          "keyVaultCertificateName": {
+            "value": "[variables('keyVaultCertificateName')]"
+          },
+          "keyVaultName": {
+            "value": "[parameters('keyVaultName')]"
+          },
+          "keyVaultResourceGroup": {
+            "value": "[parameters('keyVaultResourceGroup')]"
+          }
         }
+      }
     },
-    "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
-        "appServicePlanTier": "Standard",
-        "appServicePlanSize": "1",
-        "appServicePlanInstances": 1,
-        "redisCacheSKU": "Basic",
-        "redisCacheFamily": "C",
-        "redisCacheCapacity": 0,
-        "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
+    {
+      "apiVersion": "2017-05-10",
+      "name": "app-service-plan",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "nonASETier": {
+            "value": "[variables('appServicePlanTier')]"
+          },
+          "aspSize": {
+            "value": "[variables('appServicePlanSize')]"
+          },
+          "aspInstances": {
+            "value": "[variables('appServicePlanInstances')]"
+          }
+        }
+      }
     },
-    "resources": [
-        {
-            "condition": "[greater(length(parameters('customHostName')), 0)]",
-            "apiVersion": "2017-05-10",
-            "name": "app-service-certificate",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-certificate.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "keyVaultCertificateName": {
-                        "value": "[variables('keyVaultCertificateName')]"
-                    },
-                    "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
-                    },
-                    "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
-                    }
-                }
-            }
+    {
+      "apiVersion": "2017-05-10",
+      "name": "app-service",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/app_service_api_version/templates/app-service.json",
+          "contentVersion": "1.0.0.0"
         },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-service-plan",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "nonASETier": {
-                        "value": "[variables('appServicePlanTier')]"
-                    },
-                    "aspSize": {
-                        "value": "[variables('appServicePlanSize')]"
-                    },
-                    "aspInstances": {
-                        "value": "[variables('appServicePlanInstances')]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-service",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/app_service_api_version/templates/app-service.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServiceName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "appServicePlanResourceGroup": {
-                        "value": "[resourceGroup().name]"
-                    },
-                    "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "RedisConnectionString",
-                                "value": "[parameters('redisConnectionString')]"
-                            },
-                            {
-                                "name": "cdn:url",
-                                "value": "[parameters('cdnUrl')]"
-                            },
-                            {
-                                "name": "ApplicationPathBase",
-                                "value": "[parameters('applicationPathBase')]"
-                            },
-                            {
-                                "name": "ASPNETCORE_ENVIRONMENT",
-                                "value": "[parameters('aspnetCoreEnvironment')]"
-                            }
-                        ]
-                    },
-                    "customHostName": {
-                        "value": "[parameters('customHostName')]"
-                    },
-                    "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
-                    },
-                    "ipSecurityRestrictions": {
-                        "value": "[parameters('ipSecurityRestrictions')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "app-service-plan",
-                "app-service-certificate"
+        "parameters": {
+          "appServiceName": {
+            "value": "[parameters('appServiceName')]"
+          },
+          "appServicePlanName": {
+            "value": "[parameters('appServicePlanName')]"
+          },
+          "appServicePlanResourceGroup": {
+            "value": "[resourceGroup().name]"
+          },
+          "appServiceAppSettings": {
+            "value": [
+              {
+                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
+              },
+              {
+                "name": "RedisConnectionString",
+                "value": "[parameters('redisConnectionString')]"
+              },
+              {
+                "name": "cdn:url",
+                "value": "[parameters('cdnUrl')]"
+              },
+              {
+                "name": "GitHub:ClientId",
+                "value": "[parameters('gitHubClientId')]"
+              },
+              {
+                "name": "GitHub:ClientSecret",
+                "value": "[parameters('gitHubClientSecret')]"
+              },
+              {
+                "name": "ApplicationPathBase",
+                "value": "[parameters('applicationPathBase')]"
+              }
             ]
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "redis-cache",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'redis.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "redisCacheName": {
-                        "value": "[parameters('redisCacheName')]"
-                    },
-                    "redisCacheSKU": {
-                        "value": "[variables('redisCacheSKU')]"
-                    },
-                    "redisCacheFamily": {
-                        "value": "[variables('redisCacheFamily')]"
-                    },
-                    "redisCacheCapacity": {
-                        "value": "[variables('redisCacheCapacity')]"
-                    },
-                    "enableNonSslPort": {
-                        "value": false
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-insights",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appInsightsName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "attachedService": {
-                        "value": "[parameters('appServiceName')]"
-                    }
-                }
-            }
+          },
+          "customHostName": {
+            "value": "[parameters('customHostName')]"
+          },
+          "certificateThumbprint": {
+            "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
+          },
+          "ipSecurityRestrictions": {
+            "value": "[parameters('ipSecurityRestrictions')]"
+          }
         }
-    ]
+      },
+      "dependsOn": [
+        "app-service-plan",
+        "app-service-certificate"
+      ]
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "redis-cache",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'), 'redis.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "redisCacheName": {
+            "value": "[parameters('redisCacheName')]"
+          },
+          "redisCacheSKU": {
+            "value": "[variables('redisCacheSKU')]"
+          },
+          "redisCacheFamily": {
+            "value": "[variables('redisCacheFamily')]"
+          },
+          "redisCacheCapacity": {
+            "value": "[variables('redisCacheCapacity')]"
+          },
+          "enableNonSslPort": {
+            "value": false
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "app-insights",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appInsightsName": {
+            "value": "[parameters('appServiceName')]"
+          },
+          "attachedService": {
+            "value": "[parameters('appServiceName')]"
+          }
+        }
+      }
+    }
+  ]
 }
