@@ -76,6 +76,13 @@
       "metadata": {
         "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
       }
+    },
+    "validOrganizations": {
+      "type": "string",
+      "defaultValue": "SkillsFundingAgency",
+      "metadata": {
+        "description": "Comma-separated list of Github Organisations to allow access to"
+      }
     }
   },
   "variables": {
@@ -184,6 +191,10 @@
               {
                 "name": "ApplicationPathBase",
                 "value": "[parameters('applicationPathBase')]"
+              },
+              {
+                "name": "ValidOrganizations",
+                "value": "[parameters('validOrganizations')]"
               }
             ]
           },
