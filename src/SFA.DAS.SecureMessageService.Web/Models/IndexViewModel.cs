@@ -9,8 +9,7 @@ public class IndexViewModel
         TtlValues = new Dictionary<int, string>()
         {
             { 1, "Hour" },
-            { 24, "Day" },
-            { 168, "Week" }
+            { 24, "Day" }
         };
     }
     public string Message { get; set; }
