@@ -14,6 +14,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
     {
         private Mock<IProtectionRepository> protectionRepository;
         private Mock<ICacheRepository> cacheRepository;
+        private Mock<ISecureKeyRepository> secureKeyRepository;
         private MessageService service;
         private string unprotectedMessage = "test message";
         private string protectedMessage = "xxxxxxxxxx";
@@ -25,8 +26,9 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
         {
             protectionRepository = new Mock<IProtectionRepository>();
             cacheRepository = new Mock<ICacheRepository>();
+            secureKeyRepository = new Mock<ISecureKeyRepository>();
 
-            service = new MessageService(protectionRepository.Object, cacheRepository.Object);
+            service = new MessageService(protectionRepository.Object, cacheRepository.Object, secureKeyRepository.Object);
         }
 
         [Test]
@@ -36,6 +38,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             Guid returnedKey;
             protectionRepository.Setup(c => c.Protect(unprotectedMessage)).Returns(protectedMessage);
             cacheRepository.Setup(c => c.SaveAsync(It.IsAny<string>(), protectedMessage, ttl)).Returns(Task.FromResult(false));
+            secureKeyRepository.Setup(c => c.Create()).Returns(key);
 
             // Act
             var result = await service.Create(unprotectedMessage, ttl);
@@ -44,6 +47,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             Assert.IsTrue(Guid.TryParse(result, out returnedKey));
             protectionRepository.VerifyAll();
             cacheRepository.VerifyAll();
+            secureKeyRepository.VerifyAll();
         }
 
         [Test]
@@ -53,6 +57,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             Guid returnedKey;
             protectionRepository.Setup(c => c.Protect(unprotectedMessage)).Returns(protectedMessage);
             cacheRepository.Setup(c => c.SaveAsync(It.IsAny<string>(), protectedMessage, ttl)).Returns(Task.FromResult(false));
+            secureKeyRepository.Setup(c => c.Create()).Returns(key);
 
             // Act
             var result = await service.Create(unprotectedMessage, ttl);
@@ -62,6 +67,8 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             Assert.IsFalse(Guid.TryParse(incorrectResult, out returnedKey));
             protectionRepository.VerifyAll();
             cacheRepository.VerifyAll();
+            secureKeyRepository.VerifyAll();
+
         }
 
         [Test]
@@ -70,6 +77,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             // Arrange
             protectionRepository.Setup(c => c.Protect(unprotectedMessage)).Throws<Exception>();
             cacheRepository.Setup(c => c.SaveAsync(It.IsAny<string>(), protectedMessage, ttl)).Returns(Task.FromResult(false));
+            secureKeyRepository.Setup(c => c.Create()).Returns(key);
 
              // Assert
             Assert.ThrowsAsync<Exception>(async () => await service.Create(unprotectedMessage, ttl));
