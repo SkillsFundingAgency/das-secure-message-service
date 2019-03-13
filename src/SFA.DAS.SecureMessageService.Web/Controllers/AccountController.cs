@@ -38,6 +38,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             await HttpContext.ChallengeAsync(new AuthenticationProperties() { RedirectUri = returnUrl});
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> SignOut()
         {
 
