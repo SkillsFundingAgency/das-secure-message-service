@@ -55,13 +55,14 @@ steps:
 
 - task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
   displayName: 'Check build quality'
+  continueOnError: true
   inputs:
     checkCoverage: true
     coverageType: lines
     coverageDeltaType: percentage
     buildConfiguration: '$(buildConfiguration)'
     baseBranchRef: 'refs/heads/master'
-    
+
 - task: DotNetCoreCLI@2
   displayName: 'Publish'
   inputs:
