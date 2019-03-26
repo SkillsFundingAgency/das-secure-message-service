@@ -59,6 +59,13 @@
                 "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
             }
         },
+        "aspnetCoreEnvironment": {
+            "type": "string",
+            "defaultValue": "Production",
+            "metadata": {
+                "description": "Value for ASPNETCORE_ENVIRONMENT that will determine how the app runs"
+            }
+        },
         "ipSecurityRestrictions": {
             "type": "array",
             "metadata": {
@@ -164,6 +171,10 @@
                             {
                                 "name": "ApplicationPathBase",
                                 "value": "[parameters('applicationPathBase')]"
+                            },
+                            {
+                                "name": "ASPNETCORE_ENVIRONMENT",
+                                "value": "[parameters('aspnetCoreEnvironment')]"
                             }
                         ]
                     },
@@ -173,8 +184,8 @@
                     "certificateThumbprint": {
                         "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
-                    "ipSecurityRestrictions": {	
-                        "value": "[parameters('ipSecurityRestrictions')]"	
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('ipSecurityRestrictions')]"
                     }
                 }
             },
