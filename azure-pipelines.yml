@@ -14,6 +14,8 @@ workspace:
 
 pool:
   name: "DAS - Continuous Integration"
+  demands: 
+    - JAVA_HOME
 
 variables:
   - group: "ESFA - SonarCloud"
