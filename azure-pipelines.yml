@@ -27,16 +27,12 @@ variables:
     value: "SkillsFundingAgency_das-secure-message-service"
 
 steps:
-  - script: "dotnet tool install dotnet-sonarscanner --tool-path $(System.DefaultWorkingDirectory)/tools"
-    displayName: "Install SonarScanner"
-  - script: |
-      $(System.DefaultWorkingDirectory)/tools/dotnet-sonarscanner begin /k:"$(sonarCloudProjectKey)" \
-      /d:sonar.host.url="https://sonarcloud.io" \
-      /d:sonar.login="$(SonarCloudLoginToken)" \
-      /d:sonar.branch.name="$(Build.SourceBranch)" \
-      /v:"$(Build.BuildNumber)" \
-      /o:"$(SonarCloudOrganisationKey)"
+  - task: SonarCloudPrepare@1
     displayName: "Prepare Sonar Analyzer"
+    inputs:
+      SonarCloud: '$(SonarCloudConnectionId)'
+      organization: '$(SonarCloudOrganisationKey)'
+      projectKey: '$(sonarCloudProjectKey)'
 
   - task: DotNetCoreCLI@2
     displayName: Restore
@@ -59,9 +55,8 @@ steps:
       projects: "**/*.UnitTests.csproj"
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
 
-  - script: |
-      $(System.DefaultWorkingDirectory)/tools/dotnet-sonarscanner end /d:sonar.login="$(SonarCloudLoginToken)"
-    displayName: "Complete SonarScanner Analysis"
+  - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
+    displayName: 'Run Code Analysis'
 
   - pwsh: |
       dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
