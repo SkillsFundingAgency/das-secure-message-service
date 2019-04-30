@@ -25,12 +25,15 @@ variables:
   value: 'SkillsFundingAgency_das-secure-message-service'
 
 steps:
+- script: "dotnet tool install --global dotnet-sonarscanner"
+  displayName: "Install SonarScanner"
+
 - script: |
-    dotnet tool install --global dotnet-sonarscanner
     dotnet sonarscanner begin /k:"$(sonarCloudProjectKey)" \ 
     /d:sonar.host.url="https://sonarcloud.io" \
     /d:sonar.login="$(SonarCloudLoginToken)" \
     /o:"$(SonarCloudOrganisationKey)"
+  displayName: "Prepare Sonar Analyzer"
 
 - task: DotNetCoreCLI@2
   displayName: Restore
