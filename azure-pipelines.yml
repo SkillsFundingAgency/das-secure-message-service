@@ -1,13 +1,9 @@
 name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
-  branches:
-    include:
-      - "*"
   paths:
     exclude:
       - README.md
-pr: none
 
 workspace:
   clean: all
