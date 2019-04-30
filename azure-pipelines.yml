@@ -29,6 +29,8 @@ steps:
       SonarCloud: '$(SonarCloudConnectionId)'
       organization: '$(SonarCloudOrganisationKey)'
       projectKey: '$(sonarCloudProjectKey)'
+      extraProperties: 'sonar.pullrequest.provider=GitHub
+      sonar.pullrequest.github.repository=$(Build.Repository.Name)'
 
   - task: DotNetCoreCLI@2
     displayName: Restore
