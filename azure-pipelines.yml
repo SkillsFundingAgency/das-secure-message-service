@@ -13,13 +13,25 @@ workspace:
     clean: all
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  name: 'DAS - Continuous Integration'
 
 variables:
-  buildConfiguration: 'Release'
-  solutionPath: '$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln'
+- group: 'ESFA - Sonar Cloud'
+- name: buildConfiguration
+  value: 'Release'
+- name: solutionPath
+  value: '$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln'
+- name: sonarCloudProjectKey
+  value: 'SkillsFundingAgency_das-secure-message-service'
 
 steps:
+- script: |
+    dotnet tool install --global dotnet-sonarscanner
+    dotnet sonarscanner begin /k:"$(sonarCloudProjectKey)" \ 
+    /d:sonar.host.url="https://sonarcloud.io" \
+    /d:sonar.login="$(SonarCloudLoginToken)" \
+    /o:"$(SonarCloudOrganisationKey)"
+
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
@@ -40,6 +52,9 @@ steps:
     command: test
     projects: '**/*.UnitTests.csproj'
     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+
+- script: |
+    dotnet sonarscanner end /d:sonar.login="$(SonarCloudLoginToken)"
 
 - pwsh: |
     dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
