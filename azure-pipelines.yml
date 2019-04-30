@@ -1,4 +1,4 @@
-name: '0.1.0-$(Rev:r)'
+name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
   branches:
@@ -10,94 +10,94 @@ trigger:
 pr: none
 
 workspace:
-    clean: all
+  clean: all
 
 pool:
-  name: 'DAS - Continuous Integration'
+  name: "DAS - Continuous Integration"
 
 variables:
-- group: 'ESFA - SonarCloud'
-- name: buildConfiguration
-  value: 'Release'
-- name: solutionPath
-  value: '$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln'
-- name: sonarCloudProjectKey
-  value: 'SkillsFundingAgency_das-secure-message-service'
+  - group: "ESFA - SonarCloud"
+  - name: buildConfiguration
+    value: "Release"
+  - name: solutionPath
+    value: "$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln"
+  - name: sonarCloudProjectKey
+    value: "SkillsFundingAgency_das-secure-message-service"
 
 steps:
-- script: "dotnet tool install --global dotnet-sonarscanner"
-  displayName: "Install SonarScanner"
+  - script: "dotnet tool install dotnet-sonarscanner --tool-path $(System.DefaultWorkingDirectory)/tools"
+    displayName: "Install SonarScanner"
+  - script: |
+      $(System.DefaultWorkingDirectory)/tools/dotnet-sonarscanner begin /k:"$(sonarCloudProjectKey)" \
+      /d:sonar.host.url="https://sonarcloud.io" \
+      /d:sonar.login="$(SonarCloudLoginToken)" \
+      /o:"$(SonarCloudOrganisationKey)"
+    displayName: "Prepare Sonar Analyzer"
 
-- script: |
-    dotnet sonarscanner begin /k:"$(sonarCloudProjectKey)" \ 
-    /d:sonar.host.url="https://sonarcloud.io" \
-    /d:sonar.login="$(SonarCloudLoginToken)" \
-    /o:"$(SonarCloudOrganisationKey)"
-  displayName: "Prepare Sonar Analyzer"
+  - task: DotNetCoreCLI@2
+    displayName: Restore
+    inputs:
+      command: restore
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration)"
 
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration)"
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: "**/*.UnitTests.csproj"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: test
-    projects: '**/*.UnitTests.csproj'
-    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  - script: |
+      $(System.DefaultWorkingDirectory)/tools/dotnet-sonarscanner end /d:sonar.login="$(SonarCloudLoginToken)"
+    displayName: "Complete SonarScanner Analysis"
 
-- script: |
-    dotnet sonarscanner end /d:sonar.login="$(SonarCloudLoginToken)"
+  - pwsh: |
+      dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
+      $(System.DefaultWorkingDirectory)/tools/reportgenerator "-reports:$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.cobertura.xml" "-targetdir:$(build.artifactstagingdirectory)/reports" "-reporttypes:Cobertura;HtmlInline_AzurePipelines"
+    displayName: "Code Coverage Report Generator"
 
-- pwsh: |
-    dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
-    $(System.DefaultWorkingDirectory)/tools/reportgenerator "-reports:$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.cobertura.xml" "-targetdir:$(build.artifactstagingdirectory)/reports" "-reporttypes:Cobertura;HtmlInline_AzurePipelines"
-  displayName: 'Code Coverage Report Generator'
+  - task: PublishCodeCoverageResults@1
+    displayName: "Publish Code Coverage Results"
+    inputs:
+      codeCoverageTool: "cobertura"
+      summaryFileLocation: "$(build.artifactstagingdirectory)/reports/Cobertura.xml"
+      reportDirectory: "$(build.artifactstagingdirectory)/reports"
 
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish Code Coverage Results'
-  inputs:
-    codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(build.artifactstagingdirectory)/reports/Cobertura.xml'
-    reportDirectory: '$(build.artifactstagingdirectory)/reports'
+  - task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
+    displayName: "Check build quality"
+    continueOnError: true
+    inputs:
+      checkCoverage: true
+      coverageType: lines
+      coverageDeltaType: percentage
+      buildConfiguration: "$(buildConfiguration)"
+      baseBranchRef: "refs/heads/master"
 
-- task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
-  displayName: 'Check build quality'
-  continueOnError: true
-  inputs:
-    checkCoverage: true
-    coverageType: lines
-    coverageDeltaType: percentage
-    buildConfiguration: '$(buildConfiguration)'
-    baseBranchRef: 'refs/heads/master'
+  - task: DotNetCoreCLI@2
+    displayName: "Publish"
+    inputs:
+      command: publish
+      publishWebProjects: true
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish'
-  inputs:
-    command: publish
-    publishWebProjects: true
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish'
+  - task: CopyFiles@2
+    displayName: "Copy Files to: $(build.artifactstagingdirectory)"
+    inputs:
+      Contents: |
+        azure/**
+      TargetFolder: "$(build.artifactstagingdirectory)/publish"
+      OverWrite: true
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    Contents: |
-     azure/**
-    TargetFolder: '$(build.artifactstagingdirectory)/publish'
-    OverWrite: true
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)/publish'
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact"
+    inputs:
+      PathtoPublish: "$(build.artifactstagingdirectory)/publish"
