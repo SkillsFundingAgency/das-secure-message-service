@@ -16,7 +16,7 @@ pool:
   name: 'DAS - Continuous Integration'
 
 variables:
-- group: 'ESFA - Sonar Cloud'
+- group: 'ESFA - SonarCloud'
 - name: buildConfiguration
   value: 'Release'
 - name: solutionPath
