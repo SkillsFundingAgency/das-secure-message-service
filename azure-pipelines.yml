@@ -41,6 +41,7 @@ steps:
       extraProperties: |
         sonar.pullrequest.provider=GitHub
         sonar.pullrequest.github.repository=$(Build.Repository.Name)
+        sonar.cs.opencover.reportsPaths=$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.opencover.xml
 
   - task: DotNetCoreCLI@2
     displayName: Restore
@@ -61,32 +62,10 @@ steps:
     inputs:
       command: test
       projects: "**/*.UnitTests.csproj"
-      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
 
   - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
     displayName: "Run Code Analysis"
-
-  - pwsh: |
-      dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
-      $(System.DefaultWorkingDirectory)/tools/reportgenerator "-reports:$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.cobertura.xml" "-targetdir:$(build.artifactstagingdirectory)/reports" "-reporttypes:Cobertura;HtmlInline_AzurePipelines"
-    displayName: "Code Coverage Report Generator"
-
-  - task: PublishCodeCoverageResults@1
-    displayName: "Publish Code Coverage Results"
-    inputs:
-      codeCoverageTool: "cobertura"
-      summaryFileLocation: "$(build.artifactstagingdirectory)/reports/Cobertura.xml"
-      reportDirectory: "$(build.artifactstagingdirectory)/reports"
-
-  - task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
-    displayName: "Check build quality"
-    continueOnError: true
-    inputs:
-      checkCoverage: true
-      coverageType: lines
-      coverageDeltaType: percentage
-      buildConfiguration: "$(buildConfiguration)"
-      baseBranchRef: "refs/heads/master"
 
   - task: DotNetCoreCLI@2
     displayName: "Publish"
