@@ -36,6 +36,6 @@ azure-pipelines.aci.yml
 
 # Test Results
 coverage.json
-coverage.cobertura.xml
+coverage.*.xml
 lcov.info
 lcov.json
