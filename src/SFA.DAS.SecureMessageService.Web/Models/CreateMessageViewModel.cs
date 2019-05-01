@@ -18,6 +18,5 @@ namespace SFA.DAS.SecureMessageService.Web.Models
         public string Message { get; set; }
         public int Ttl { get; set; }
         public Dictionary<int, string> TtlValues { get; set; }
-        }
     }
 }
