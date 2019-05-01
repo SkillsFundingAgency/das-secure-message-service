@@ -1,16 +1,22 @@
 name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
+  branches:
+    - "*"
   paths:
     exclude:
       - README.md
+
+pr:
+  branches:
+    - "*"
 
 workspace:
   clean: all
 
 pool:
   name: "DAS - Continuous Integration"
-  demands: 
+  demands:
     - JAVA_HOME
 
 variables:
@@ -26,11 +32,12 @@ steps:
   - task: SonarCloudPrepare@1
     displayName: "Prepare Sonar Analyzer"
     inputs:
-      SonarCloud: '$(SonarCloudConnectionId)'
-      organization: '$(SonarCloudOrganisationKey)'
-      projectKey: '$(sonarCloudProjectKey)'
-      extraProperties: 'sonar.pullrequest.provider=GitHub
-      sonar.pullrequest.github.repository=$(Build.Repository.Name)'
+      SonarCloud: "$(SonarCloudConnectionId)"
+      organization: "$(SonarCloudOrganisationKey)"
+      projectKey: "$(sonarCloudProjectKey)"
+      extraProperties: |
+        sonar.pullrequest.provider=GitHub
+        sonar.pullrequest.github.repository=$(Build.Repository.Name)
 
   - task: DotNetCoreCLI@2
     displayName: Restore
@@ -54,7 +61,7 @@ steps:
       arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
 
   - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
-    displayName: 'Run Code Analysis'
+    displayName: "Run Code Analysis"
 
   - pwsh: |
       dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
