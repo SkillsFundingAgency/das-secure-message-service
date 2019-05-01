@@ -36,6 +36,7 @@ steps:
     inputs:
       SonarCloud: "$(SonarCloudConnectionId)"
       organization: "$(SonarCloudOrganisationKey)"
+      projectName: "$(Build.DefinitionName)"
       projectKey: "$(sonarCloudProjectKey)"
       extraProperties: |
         sonar.pullrequest.provider=GitHub
