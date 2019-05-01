@@ -1,6 +1,9 @@
 using System;
 
-public class ShowMessageUrlViewModel
+namespace SFA.DAS.SecureMessageService.Web.Models
 {
-    public string Url { get; set; }
+    public class ShowMessageUrlViewModel
+    {
+        public string Url { get; set; }
+    }
 }

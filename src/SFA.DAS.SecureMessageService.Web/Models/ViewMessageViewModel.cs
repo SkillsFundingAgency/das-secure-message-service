@@ -2,7 +2,10 @@ using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 
-public class ViewMessageViewModel
+namespace SFA.DAS.SecureMessageService.Web.Models
 {
-    public string Message { get; set; }
+    public class ViewMessageViewModel
+    {
+        public string Message { get; set; }
+    }
 }
