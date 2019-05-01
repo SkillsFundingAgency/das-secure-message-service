@@ -1,85 +1,100 @@
-name: '0.1.0-$(Rev:r)'
+name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
-  branches:
-    include:
-      - "*"
   paths:
     exclude:
       - README.md
-pr: none
 
 workspace:
-    clean: all
+  clean: all
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  name: "DAS - Continuous Integration"
+  demands: 
+    - JAVA_HOME
 
 variables:
-  buildConfiguration: 'Release'
-  solutionPath: '$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln'
+  - group: "ESFA - SonarCloud"
+  - name: buildConfiguration
+    value: "Release"
+  - name: solutionPath
+    value: "$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln"
+  - name: sonarCloudProjectKey
+    value: "SkillsFundingAgency_das-secure-message-service"
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration)'
+  - task: SonarCloudPrepare@1
+    displayName: "Prepare Sonar Analyzer"
+    inputs:
+      SonarCloud: '$(SonarCloudConnectionId)'
+      organization: '$(SonarCloudOrganisationKey)'
+      projectKey: '$(sonarCloudProjectKey)'
+      extraProperties: 'sonar.pullrequest.provider=GitHub
+      sonar.pullrequest.github.repository=$(Build.Repository.Name)'
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: Restore
+    inputs:
+      command: restore
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration)"
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: test
-    projects: '**/*.UnitTests.csproj'
-    arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration)"
 
-- pwsh: |
-    dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
-    $(System.DefaultWorkingDirectory)/tools/reportgenerator "-reports:$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.cobertura.xml" "-targetdir:$(build.artifactstagingdirectory)/reports" "-reporttypes:Cobertura;HtmlInline_AzurePipelines"
-  displayName: 'Code Coverage Report Generator'
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: "**/*.UnitTests.csproj"
+      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
 
-- task: PublishCodeCoverageResults@1
-  displayName: 'Publish Code Coverage Results'
-  inputs:
-    codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(build.artifactstagingdirectory)/reports/Cobertura.xml'
-    reportDirectory: '$(build.artifactstagingdirectory)/reports'
+  - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
+    displayName: 'Run Code Analysis'
 
-- task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
-  displayName: 'Check build quality'
-  continueOnError: true
-  inputs:
-    checkCoverage: true
-    coverageType: lines
-    coverageDeltaType: percentage
-    buildConfiguration: '$(buildConfiguration)'
-    baseBranchRef: 'refs/heads/master'
+  - pwsh: |
+      dotnet tool install dotnet-reportgenerator-globaltool --tool-path $(System.DefaultWorkingDirectory)/tools
+      $(System.DefaultWorkingDirectory)/tools/reportgenerator "-reports:$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.cobertura.xml" "-targetdir:$(build.artifactstagingdirectory)/reports" "-reporttypes:Cobertura;HtmlInline_AzurePipelines"
+    displayName: "Code Coverage Report Generator"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish'
-  inputs:
-    command: publish
-    publishWebProjects: true
-    projects: $(solutionPath)
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish'
+  - task: PublishCodeCoverageResults@1
+    displayName: "Publish Code Coverage Results"
+    inputs:
+      codeCoverageTool: "cobertura"
+      summaryFileLocation: "$(build.artifactstagingdirectory)/reports/Cobertura.xml"
+      reportDirectory: "$(build.artifactstagingdirectory)/reports"
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    Contents: |
-     azure/**
-    TargetFolder: '$(build.artifactstagingdirectory)/publish'
-    OverWrite: true
+  - task: mspremier.BuildQualityChecks.QualityChecks-task.BuildQualityChecks@5
+    displayName: "Check build quality"
+    continueOnError: true
+    inputs:
+      checkCoverage: true
+      coverageType: lines
+      coverageDeltaType: percentage
+      buildConfiguration: "$(buildConfiguration)"
+      baseBranchRef: "refs/heads/master"
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)/publish'
+  - task: DotNetCoreCLI@2
+    displayName: "Publish"
+    inputs:
+      command: publish
+      publishWebProjects: true
+      projects: $(solutionPath)
+      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
+
+  - task: CopyFiles@2
+    displayName: "Copy Files to: $(build.artifactstagingdirectory)"
+    inputs:
+      Contents: |
+        azure/**
+      TargetFolder: "$(build.artifactstagingdirectory)/publish"
+      OverWrite: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact"
+    inputs:
+      PathtoPublish: "$(build.artifactstagingdirectory)/publish"
