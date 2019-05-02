@@ -16,7 +16,6 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.UnitTests
         private string message = "test message";
         private string key = "24a8d272-0bd5-422d-80f1-09fc21dc7f7f";
         private int ttl = 1;
-        private DistributedCacheEntryOptions timeSpan;
 
         [SetUp]
         public void Setup()
