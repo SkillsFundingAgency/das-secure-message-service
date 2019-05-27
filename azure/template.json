@@ -76,10 +76,6 @@
             "type": "string",
             "defaultValue": "1"
         },
-        "appServicePlanTier": {
-            "type": "string",
-            "defaultValue": "Standard"
-        },
         "appServicePlanInstances": {
             "type": "int",
             "defaultValue": 1
@@ -157,7 +153,7 @@
                         "value": "[variables('appServicePlanName')]"
                     },
                     "nonASETier": {
-                        "value": "[parameters('appServicePlanTier')]"
+                        "value": "Standard"
                     },
                     "aspSize": {
                         "value": "[parameters('appServicePlanSize')]"
