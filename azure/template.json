@@ -81,8 +81,8 @@
             "defaultValue": "Standard"
         },
         "appServicePlanInstances": {
-            "type": "string",
-            "defaultValue": "1"
+            "type": "int",
+            "defaultValue": 1
         },
         "redisCacheSKU": {
             "type": "string",
