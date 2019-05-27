@@ -34,11 +34,8 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
                 return View("InvalidMessageKey");
             }
       
-            // Get host header from app gateway
-            var host = String.IsNullOrEmpty(Request.Headers["X-Original-Host"].ToString()) ? Request.Headers["X-Original-Host"].ToString() : Request.Host.ToString();
-
             // Create url and return view
-            var url = $"{Request.Scheme}://{host}/messages/{key}";
+            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
             var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }

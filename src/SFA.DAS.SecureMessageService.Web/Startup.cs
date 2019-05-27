@@ -75,7 +75,7 @@ namespace SFA.DAS.SecureMessageService.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,  ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
@@ -90,6 +90,17 @@ namespace SFA.DAS.SecureMessageService.Web
                 app.UseHsts();
             }
 
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Headers.ContainsKey("X-Original-Host"))
+                {
+                    var originalHost = context.Request.Headers["X-Original-Host"];
+                    logger.LogInformation($"Retrieving X-Original-Host value {originalHost}");
+                    context.Request.Headers.Add("Host", originalHost);
+                }
+                await next.Invoke();
+            });
+
             // Configure custom health check endpoint
             app.UseHealthChecks("/health");
 
@@ -102,7 +113,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();            
+            app.UseCookiePolicy();
             app.UsePathBase("/Messages"); // Move to cofig
 
             app.UseMvc(routes =>
