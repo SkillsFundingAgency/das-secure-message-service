@@ -34,12 +34,8 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
                 return View("InvalidMessageKey");
             }
       
-            // Hacky - Get original host of request (app gateway)
-            var host = Request.Headers["X-Original-Host"];
-            if (String.IsNullOrEmpty(host))
-            {
-                host = Request.Host.ToString();
-            }
+            // Get host header from app gateway
+            var host = String.IsNullOrEmpty(Request.Headers["X-Original-Host"].ToString()) ? Request.Headers["X-Original-Host"].ToString() : Request.Host.ToString();
 
             // Create url and return view
             var url = $"{Request.Scheme}://{host}/messages/{key}";
