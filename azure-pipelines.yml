@@ -18,8 +18,8 @@ workspace:
 
 pool:
   name: 'Hosted Ubuntu 1604'
-  demands:
-    - JAVA_HOME
+  # demands:
+  #   - JAVA_HOME
 
 variables:
   # - group: "ESFA - SonarCloud"
