@@ -51,7 +51,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
 
 
         [HttpPost("messages/{key}")]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
             logger.LogInformation($"Attempting to retrieve message: {key}");

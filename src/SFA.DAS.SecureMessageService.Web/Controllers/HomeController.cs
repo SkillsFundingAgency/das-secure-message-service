@@ -29,7 +29,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         }
 
         [HttpPost("")]
-        [ValidateAntiForgeryToken]
+        // [ValidateAntiForgeryToken]
         public async Task<IActionResult> IndexSubmitMessage(IndexViewModel indexViewModel)
         {
             if (String.IsNullOrEmpty(indexViewModel.Message))

@@ -13,7 +13,7 @@
         <div class="govuk-form-group">
             @using (Html.BeginForm(FormMethod.Post, new { @class = "govuk-form-group" } ))
             {
-                @Html.AntiForgeryToken()
+                <!-- @Html.AntiForgeryToken() -->
                 @Html.Label("Message",null, new { @class = "govuk-visually-hidden"} )
                 @Html.TextAreaFor(m => m.Message, new { @class="govuk-textarea", @rows="10", @cols="50", @autofocus="true", required="true", autocomplete="off" })
                 @Html.DropDownListFor(m => m.Ttl,
