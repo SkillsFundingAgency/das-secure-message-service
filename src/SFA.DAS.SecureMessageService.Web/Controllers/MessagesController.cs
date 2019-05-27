@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
@@ -32,9 +33,16 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
                 logger.LogError($"Message with key {key} does not exist");
                 return View("InvalidMessageKey");
             }
+      
+            // Hacky - Get original host of request (app gateway)
+            var host = Request.Headers["X-Original-Host"];
+            if (String.IsNullOrEmpty(host))
+            {
+                host = Request.Host.ToString();
+            }
 
             // Create url and return view
-            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
+            var url = $"{Request.Scheme}://{host}/messages/{key}";
             var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }
