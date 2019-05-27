@@ -102,7 +102,8 @@ namespace SFA.DAS.SecureMessageService.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseCookiePolicy();            
+            app.UsePathBase("/Messages"); // Move to cofig
 
             app.UseMvc(routes =>
             {
