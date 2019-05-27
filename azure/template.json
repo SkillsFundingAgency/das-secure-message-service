@@ -117,29 +117,6 @@
         "redisCacheName": "[concat(variables('resourceNamePrefix'), '-rds')]",
         "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
     },
-    "functions": [
-        {
-            "namespace": "das",
-            "members": {
-                "getAppGatewayPublicIpAddress": {
-                    "parameters": [
-                        {
-                            "name": "appGatewayIpAddressResourceGroup",
-                            "type": "string"
-                        },
-                        {
-                            "name": "appGatewayIpAddressName",
-                            "type": "string"
-                        }
-                    ],
-                    "output": {
-                        "type": "string",
-                        "value": "[reference(resourceId(parameters('appGatewayIpAddressResourceGroup'),'Microsoft.Network/publicIPAddresses/', parameters('appGatewayIpAddressName')), '2018-08-01').IpAddress]"
-                    }
-                }
-            }
-        }
-    ],
     "resources": [
         {
             "apiVersion": "2017-05-10",
@@ -244,7 +221,7 @@
                     "ipSecurityRestrictions": {
                         "value": [
                             {
-                                "ipAddress": "[das.getAppGatewayIpAddress(parameters('appGatewayIpAddressResourceGroup'), parameters('appGatewayIpAddressName'))]",
+                                "ipAddress": "[reference(resourceId(parameters('appGatewayIpAddressResourceGroup'),'Microsoft.Network/publicIPAddresses/', parameters('appGatewayIpAddressName')), '2018-08-01').IpAddress]",
                                 "action": "Allow",
                                 "priority": 100,
                                 "name": "Gateway"
