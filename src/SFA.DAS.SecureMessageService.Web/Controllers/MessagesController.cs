@@ -29,7 +29,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             var messageExists = await messageService.MessageExists(key);
             if(!messageExists)
             {
-                logger.LogError(1, $"Message with key {key} does not exist");
+                logger.LogError($"Message with key {key} does not exist");
                 return View("InvalidMessageKey");
             }
 
@@ -44,7 +44,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         {
             var messageExists = await messageService.MessageExists(key);
             ViewBag.MessageExists = messageExists;
-            logger.LogInformation(1, $"Message {key} exists: {messageExists.ToString()}");
+            logger.LogInformation($"Message {key} exists: {messageExists.ToString()}");
 
             return View("ConfirmViewMessage");
         }
@@ -54,9 +54,9 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
-            logger.LogInformation(1, $"Attempting to retrieve message: {key}");
+            logger.LogInformation($"Attempting to retrieve message: {key}");
             var message = await messageService.Retrieve(key);
-            logger.LogInformation(1, $"Message {key} has been removed from cache");
+            logger.LogInformation($"Message {key} has been removed from cache");
 
             var viewMessageViewModel = new ViewMessageViewModel() { Message = message };
             return View(viewMessageViewModel);

@@ -23,7 +23,41 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.SetupSecureMessageService(Configuration, _env);
+            services.AddHealthChecks();
+
+            services.Configure<SharedConfig>(Configuration);
+            services.AddSingleton<IMessageService, MessageService>();
+            services.AddSingleton<IProtectionRepository, ProtectionRepository>();
+            services.AddSingleton<ICacheRepository, CacheRepository>();
+            services.AddSingleton<IDasDistributedCache, DasDistributedCache>();
+            services.AddSingleton<IDasDataProtector, DasDataProtector>();
+            services.AddSingleton<ISecureKeyRepository, SecureKeyRepository>();
+
+            try
+            {
+                if (_env.IsDevelopment())
+                {
+                    services.AddDistributedMemoryCache();
+                }
+                else
+                {
+                    var redisConnectionString = Configuration["RedisConnectionString"];
+
+                    services.AddStackExchangeRedisCache(options =>
+                    {
+                        options.Configuration = $"{redisConnectionString},DefaultDatabase=1";
+                    });
+
+                    var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
+                    services.AddDataProtection()
+                        .SetApplicationName("das-sms-svc-web")
+                        .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Could not create redis cache connection", e);
+            }
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -41,18 +75,23 @@ namespace SFA.DAS.SecureMessageService.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,  ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
+                logger.LogInformation($"App is running in development mode: {env.EnvironmentName}");
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                logger.LogInformation($"App is running in production mode: {env.EnvironmentName}");
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // Configure custom health check endpoint
+            app.UseHealthChecks("/health");
 
             app.Use(async (context, next) =>
             {
@@ -60,9 +99,6 @@ namespace SFA.DAS.SecureMessageService.Web
                 context.Response.Headers.Add("X-Xss-Protection", "1");
                 await next();
             });
-
-            // Enable app insights logging
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
