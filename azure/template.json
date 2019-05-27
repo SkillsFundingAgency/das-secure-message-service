@@ -2,29 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service."
-            }
+        "resourceEnvironmentName": {
+            "type": "string"
         },
-        "apiAppServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the api app service."
-            }
-        },
-        "appServicePlanName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service plan."
-            }
-        },
-        "redisCacheName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the redis cache."
-            }
+        "serviceName": {
+            "type": "string"
         },
         "redisConnectionString": {
             "type": "string",
@@ -90,29 +72,80 @@
                 "description": "Value for ASPNETCORE_ENVIRONMENT that will determine how the app runs"
             }
         },
-        "ipSecurityRestrictions": {
-            "type": "array",
+        "appServicePlanSize": {
+            "type": "string",
+            "defaultValue": "1"
+        },
+        "appServicePlanTier": {
+            "type": "string",
+            "defaultValue": "Standard"
+        },
+        "appServicePlanInstances": {
+            "type": "string",
+            "defaultValue": "1"
+        },
+        "redisCacheSKU": {
+            "type": "string",
+            "defaultValue": "Basic"
+        },
+        "redisCacheFamily": {
+            "type": "string",
+            "defaultValue": "C"
+        },
+        "redisCacheCapacity": {
+            "type": "int",
+            "defaultValue": 0
+        },
+        "appGatewayIpAddressResourceGroup": {
+            "type": "string",
             "metadata": {
-                "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
+                "description": "The resource group of the public ip address attached to the app gateway"
+            }
+        },
+        "appGatewayIpAddressName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the public ip address attached to the app gateway"
             }
         }
     },
     "variables": {
         "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
-        "appServicePlanTier": "Standard",
-        "appServicePlanSize": "1",
-        "appServicePlanInstances": 1,
-        "redisCacheSKU": "Basic",
-        "redisCacheFamily": "C",
-        "redisCacheCapacity": 0,
+        "resourceNamePrefix": "[toLower(concat('cg-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+        "appServiceName": "[concat(variables('resourceNamePrefix'), '-as')]",
+        "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
+        "redisCacheName": "[concat(variables('resourceNamePrefix'), '-rds')]",
         "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
     },
+    "functions": [
+        {
+            "namespace": "das",
+            "members": {
+                "getAppGatewayPublicIpAddress": {
+                    "parameters": [
+                        {
+                            "name": "appGatewayIpAddressResourceGroup",
+                            "type": "string"
+                        },
+                        {
+                            "name": "appGatewayIpAddressName",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[reference(resourceId(parameters('appGatewayIpAddressResourceGroup'),'Microsoft.Network/publicIPAddresses/', parameters('appGatewayIpAddressName')), '2018-08-01').IpAddress]"
+                    }
+                }
+            }
+        }
+    ],
     "resources": [
         {
-            "condition": "[greater(length(parameters('customHostName')), 0)]",
             "apiVersion": "2017-05-10",
             "name": "app-service-certificate",
             "type": "Microsoft.Resources/deployments",
+            "condition": "[greater(length(parameters('customHostName')), 0)]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -144,16 +177,16 @@
                 },
                 "parameters": {
                     "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
+                        "value": "[variables('appServicePlanName')]"
                     },
                     "nonASETier": {
-                        "value": "[variables('appServicePlanTier')]"
+                        "value": "[parameters('appServicePlanTier')]"
                     },
                     "aspSize": {
-                        "value": "[variables('appServicePlanSize')]"
+                        "value": "[parameters('appServicePlanSize')]"
                     },
                     "aspInstances": {
-                        "value": "[variables('appServicePlanInstances')]"
+                        "value": "[parameters('appServicePlanInstances')]"
                     }
                 }
             }
@@ -170,10 +203,10 @@
                 },
                 "parameters": {
                     "appServiceName": {
-                        "value": "[parameters('appServiceName')]"
+                        "value": "[variables('appServiceName')]"
                     },
                     "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
+                        "value": "[variables('appServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
                         "value": "[resourceGroup().name]"
@@ -209,7 +242,14 @@
                         "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
                     },
                     "ipSecurityRestrictions": {
-                        "value": "[parameters('ipSecurityRestrictions')]"
+                        "value": [
+                            {
+                                "ipAddress": "[das.getAppGatewayIpAddress(parameters('appGatewayIpAddressResourceGroup'), parameters('appGatewayIpAddressName'))]",
+                                "action": "Allow",
+                                "priority": 100,
+                                "name": "Gateway"
+                            }
+                        ]
                     }
                 }
             },
@@ -230,16 +270,16 @@
                 },
                 "parameters": {
                     "redisCacheName": {
-                        "value": "[parameters('redisCacheName')]"
+                        "value": "[variables('redisCacheName')]"
                     },
                     "redisCacheSKU": {
-                        "value": "[variables('redisCacheSKU')]"
+                        "value": "[parameters('redisCacheSKU')]"
                     },
                     "redisCacheFamily": {
-                        "value": "[variables('redisCacheFamily')]"
+                        "value": "[parameters('redisCacheFamily')]"
                     },
                     "redisCacheCapacity": {
-                        "value": "[variables('redisCacheCapacity')]"
+                        "value": "[parameters('redisCacheCapacity')]"
                     },
                     "enableNonSslPort": {
                         "value": false
@@ -259,10 +299,10 @@
                 },
                 "parameters": {
                     "appInsightsName": {
-                        "value": "[parameters('appServiceName')]"
+                        "value": "[variables('appServiceName')]"
                     },
                     "attachedService": {
-                        "value": "[parameters('appServiceName')]"
+                        "value": "[variables('appServiceName')]"
                     }
                 }
             }
@@ -326,5 +366,11 @@
                 "app-service-certificate"
             ]
         }
-    ]
+    ],
+    "outputs": {
+        "AppServiceName": {
+            "type": "string",
+            "value": "[variables('appServiceName')]"
+        }
+    }
 }
