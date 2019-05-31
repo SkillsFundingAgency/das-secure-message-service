@@ -12,6 +12,7 @@ using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
+    [Authorize(Policy="ValidOrgsOnly")]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
@@ -40,6 +41,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }
 
+        [AllowAnonymous]
         [HttpGet("messages/{key}")]
         public async Task<IActionResult> ConfirmViewMessage(string key)
         {
@@ -50,7 +52,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             return View("ConfirmViewMessage");
         }
 
-
+        [AllowAnonymous]
         [HttpPost("messages/{key}")]
         // [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)

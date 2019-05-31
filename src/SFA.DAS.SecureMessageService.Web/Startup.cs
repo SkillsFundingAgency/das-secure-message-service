@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Infrastructure;
+using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
+using SFA.DAS.ToolService.Authentication.Entities;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -23,8 +25,18 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
+           var authenticationOptions = Configuration.GetSection("Authentication");
+            
+            services.Configure<AuthenticationConfigurationEntity>(authenticationOptions);
+            
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = 
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
+            services.AddHealthChecks();
+            services.AddAuthenticationProviders(authenticationOptions.Get<AuthenticationConfigurationEntity>());
             services.Configure<SharedConfig>(Configuration);
             services.AddSingleton<IMessageService, MessageService>();
             services.AddSingleton<IProtectionRepository, ProtectionRepository>();
@@ -77,6 +89,19 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
+                        app.UseForwardedHeaders();
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Headers.ContainsKey("X-Original-Host"))
+                {
+                    var originalHost = context.Request.Headers["X-Original-Host"];
+                    logger.LogInformation($"Retrieving X-Original-Host value {originalHost}");
+                    context.Request.Headers.Add("Host", originalHost);
+                }
+                await next.Invoke();
+            });
+
             if (env.IsDevelopment())
             {
                 logger.LogInformation($"App is running in development mode: {env.EnvironmentName}");
@@ -92,20 +117,6 @@ namespace SFA.DAS.SecureMessageService.Web
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Headers.ContainsKey("X-Original-Host"))
-                {
-                    var originalHost = context.Request.Headers["X-Original-Host"];
-                    logger.LogInformation($"Retrieving X-Original-Host value {originalHost}");
-                    context.Request.Headers.Add("Host", originalHost);
-                }
-                await next.Invoke();
-            });
-
-            // Configure custom health check endpoint
-            app.UseHealthChecks("/health");
-
-            app.Use(async (context, next) =>
-            {
                 context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
                 context.Response.Headers.Add("X-Xss-Protection", "1");
                 await next();
@@ -115,6 +126,7 @@ namespace SFA.DAS.SecureMessageService.Web
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UsePathBase("/Messages"); // Move to cofig
+            app.UseHealthChecks("/health");
 
             app.UseMvc(routes =>
             {
