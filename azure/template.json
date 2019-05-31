@@ -135,6 +135,13 @@
             "metadata": {
                 "description": "Scope for token access."
             }
+        },
+        "gitHubRedirectUrl":{
+            "type": "string",
+            "defaultValue": "/Messages",
+            "metadata": {
+                "description": "The redirect url used in oauth requests."
+            }
         }
     },
     "variables": {
@@ -257,6 +264,10 @@
                             {
                                 "name": "Authentication:GitHub:Scope",
                                 "value": "[parameters('gitHubScope')]"
+                            },
+                            {
+                                "name": "Authentication:GitHub:RedirectUrl",
+                                "value": "[parameters('gitHubRedirectUrl')]"
                             }
                         ]
                     },
