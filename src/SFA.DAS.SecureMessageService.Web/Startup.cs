@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.HttpOverrides;
 using SFA.DAS.SecureMessageService.Infrastructure;
 using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
 using SFA.DAS.ToolService.Authentication.Entities;

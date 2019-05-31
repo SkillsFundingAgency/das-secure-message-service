@@ -18,9 +18,8 @@
     <PackageReference Include="NLog" Version="4.5.11" />
     <PackageReference Include="NLog.Schema" Version="4.5.11" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
-    <PackageReference Include="SFA.DAS.ToolService.Authentication" />
+    <PackageReference Include="SFA.DAS.ToolService.Authentication" Version="0.1.*"/>
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.SecureMessageService.Core\SFA.DAS.SecureMessageService.Core.csproj" />
