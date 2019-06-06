@@ -26,13 +26,13 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           var authenticationOptions = Configuration.GetSection("Authentication");
-            
+            var authenticationOptions = Configuration.GetSection("Authentication");
+
             services.Configure<AuthenticationConfigurationEntity>(authenticationOptions);
-            
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
-                options.ForwardedHeaders = 
+                options.ForwardedHeaders =
                     ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
@@ -63,7 +63,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
                     var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
                     services.AddDataProtection()
-                        .SetApplicationName("das-sms-svc-web")
+                        .SetApplicationName("das-tools-service")
                         .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
                 }
             }
@@ -90,7 +90,7 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
-                        app.UseForwardedHeaders();
+            app.UseForwardedHeaders();
 
             app.Use(async (context, next) =>
             {
