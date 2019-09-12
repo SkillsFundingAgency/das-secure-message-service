@@ -14,6 +14,7 @@ using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 using StackExchange.Redis;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -68,7 +69,7 @@ namespace SFA.DAS.SecureMessageService.Api
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new Info { Title = "DAS Secure Message Service API", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DAS Secure Message Service API", Version = "v1" });
                 });
         }
 
