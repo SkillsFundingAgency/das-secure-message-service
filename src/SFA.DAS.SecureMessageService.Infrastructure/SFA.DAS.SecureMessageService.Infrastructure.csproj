@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.5" />
   </ItemGroup>
 
