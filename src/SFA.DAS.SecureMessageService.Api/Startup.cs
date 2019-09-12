@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Swagger;
 using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
-using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
+using StackExchange.Redis;
+using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -55,6 +53,11 @@ namespace SFA.DAS.SecureMessageService.Api
                     {
                         options.Configuration = $"{redisConnectionString},DefaultDatabase=1";
                     });
+
+                    var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
+                    services.AddDataProtection()
+                        .SetApplicationName("das-sms-svc-web")
+                        .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
                 }
             }
             catch (Exception e)

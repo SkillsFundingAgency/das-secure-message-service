@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +13,6 @@ using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 using StackExchange.Redis;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
