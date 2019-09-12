@@ -8,6 +8,12 @@
                 "description": "The name of the app service."
             }
         },
+        "apiAppServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the api app service."
+            }
+        },
         "appServicePlanName": {
             "type": "string",
             "metadata": {
@@ -141,7 +147,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/app_service_api_version/templates/app-service.json",
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -242,6 +248,53 @@
                     }
                 }
             }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "api-app-service",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[parameters('apiAppServiceName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
+                            },
+                            {
+                                "name": "RedisConnectionString",
+                                "value": "[parameters('redisConnectionString')]"
+                            },
+                            {
+                                "name": "ASPNETCORE_ENVIRONMENT",
+                                "value": "[parameters('aspnetCoreEnvironment')]"
+                            },
+                            {
+                                "name": "UIBaseUrl",
+                                "value": "[concat('https://', parameters('customHostName'))]"
+                            }
+                        ]
+                    }
+                }
+            },
+            "dependsOn": [
+                "app-service-plan",
+                "app-service-certificate"
+            ]
         }
     ]
 }

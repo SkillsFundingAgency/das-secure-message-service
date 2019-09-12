@@ -7,6 +7,7 @@ using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Api.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace SFA.DAS.SecureMessageService.Api.Controllers
 {
@@ -15,11 +16,13 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
     {
         private readonly ILogger logger;
         private readonly IMessageService messageService;
+        private readonly IConfiguration configuration;
 
-        public MessagesController(ILogger<MessagesController> _logger, IMessageService _messageService)
+        public MessagesController(ILogger<MessagesController> _logger, IMessageService _messageService, IConfiguration _configuration)
         {
             logger = _logger;
             messageService = _messageService;
+            configuration = _configuration;
         }
 
         [HttpPost]
@@ -35,7 +38,9 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
             var key = await messageService.Create(secureMessageRequest.SecureMessage, secureMessageRequest.TtlInHours);
             logger.LogInformation(1, $"Saving message: {key}");
 
-            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
+            var baseUrl = configuration["UIBaseUrl"];
+            baseUrl = baseUrl.TrimEnd('/');
+            var url = $"{baseUrl}/messages/{key}";
             return Ok(url);
         }
     }
