@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-
+    <ProjectGuid>{FA691604-4331-40F4-929D-B591C28B5E1F}</ProjectGuid>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -22,6 +22,6 @@
     <ProjectReference Include="..\SFA.DAS.SecureMessageService.Core\SFA.DAS.SecureMessageService.Core.csproj" />
     <ProjectReference Include="..\SFA.DAS.SecureMessageService.Infrastructure\SFA.DAS.SecureMessageService.Infrastructure.csproj" />
   </ItemGroup>
-  
+
 
 </Project>
