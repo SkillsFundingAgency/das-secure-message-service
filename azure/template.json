@@ -285,7 +285,7 @@
                             },
                             {
                                 "name": "UIBaseUrl",
-                                "value": "[concat('https://', parameters('customHostName'))]"
+                                "value": "[concat('https://',  if(greater(length(parameters('customHostName')), 0), parameters('customHostName'), concat(parameters('appServiceName'), '.azurewebsites.net')))]"
                             }
                         ]
                     }
