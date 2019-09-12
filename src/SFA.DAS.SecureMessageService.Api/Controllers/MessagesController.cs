@@ -18,7 +18,7 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
         private readonly IMessageService messageService;
         private readonly IConfiguration configuration;
 
-        public MessagesController(ILogger<MessagesController> _logger, IMessageService _messageService, IConfiguration _configuration)
+        public MessagesController(IMessageService _messageService, ILogger<MessagesController> _logger, IConfiguration _configuration)
         {
             logger = _logger;
             messageService = _messageService;
@@ -27,7 +27,7 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
 
         [HttpPost]
         [Route("CreateSecureMessageUrl")]
-        public async Task<ActionResult> CreateSecureMessageUrl([FromBody]SecureMessageRequestDto secureMessageRequest)
+        public async Task<IActionResult> CreateSecureMessageUrl([FromBody]SecureMessageRequestDto secureMessageRequest)
         {
             if (String.IsNullOrEmpty(secureMessageRequest.SecureMessage))
             {
