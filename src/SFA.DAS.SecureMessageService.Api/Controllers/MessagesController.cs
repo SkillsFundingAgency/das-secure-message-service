@@ -8,10 +8,12 @@ using SFA.DAS.SecureMessageService.Core.IServices;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Api.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SFA.DAS.SecureMessageService.Api.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Messages")]
     public class MessagesController : ControllerBase
     {
         private readonly ILogger logger;

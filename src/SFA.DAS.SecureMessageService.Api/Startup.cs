@@ -16,6 +16,9 @@ using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.SecureMessageService.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -35,15 +38,33 @@ namespace SFA.DAS.SecureMessageService.Api
         {
             services.SetupSecureMessageService(Configuration, _env);
 
+            services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+                    .AddJwtBearer(auth =>
+                    {
+                        auth.Authority =
+                            $"https://login.microsoftonline.com/{Configuration["AzureAd:Tenant"]}";
+                        auth.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidAudiences = new List<string>
+                            {
+                                Configuration["AzureAd:Identifier"]
+                            }
+                        };
+                    });
+            services.AddApplicationInsightsTelemetry();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DAS Secure Message Service API", Version = "v1" });
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                        In = ParameterLocation.Header,
+                        Name = "Authorization"                        
+                    });
                 });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -54,8 +75,8 @@ namespace SFA.DAS.SecureMessageService.Api
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             // Enable app insights logging
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Warning);
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -63,6 +84,7 @@ namespace SFA.DAS.SecureMessageService.Api
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "DAS Secure Message Service API");
                 });
 
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
