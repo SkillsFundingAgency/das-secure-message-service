@@ -64,8 +64,8 @@ steps:
   displayName: Build Web Image
   inputs:
     command: build
-    dockerfile: Web.Dockerfile
-    repository: apprenticeshipsdevops/das-whitelist-service
+    dockerfile: Dockerfile
+    repository: apprenticeshipsdevops/das-tool-service
     tags: |
       $(build.buildnumber)
       latest
@@ -74,7 +74,7 @@ steps:
   displayName: Push Web Image
   inputs:
     command: push
-    repository: apprenticeshipsdevops/das-whitelist-service
+    repository: apprenticeshipsdevops/das-tool-service
     tags: $(build.buildnumber)
 
 - task: Docker@2
@@ -82,7 +82,7 @@ steps:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
     command: push
-    repository: apprenticeshipsdevops/das-whitelist-service
+    repository: apprenticeshipsdevops/das-tool-service
     tags: latest
     
 - task: CopyFiles@2
