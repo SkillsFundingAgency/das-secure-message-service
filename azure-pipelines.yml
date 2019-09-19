@@ -65,7 +65,7 @@ steps:
   inputs:
     command: build
     dockerfile: Dockerfile
-    repository: apprenticeshipsdevops/das-tool-service
+    repository: apprenticeshipsdevops/das-secure-message-service
     tags: |
       $(build.buildnumber)
       latest
@@ -74,7 +74,7 @@ steps:
   displayName: Push Web Image
   inputs:
     command: push
-    repository: apprenticeshipsdevops/das-tool-service
+    repository: apprenticeshipsdevops/das-secure-message-service
     tags: $(build.buildnumber)
 
 - task: Docker@2
@@ -82,7 +82,7 @@ steps:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
     command: push
-    repository: apprenticeshipsdevops/das-tool-service
+    repository: apprenticeshipsdevops/das-secure-message-service
     tags: latest
     
 - task: CopyFiles@2
