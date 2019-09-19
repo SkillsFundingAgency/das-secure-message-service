@@ -25,13 +25,14 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
-    command: restore
+    command: testore
     projects: 'src/**/*.csproj'
     noCache: true
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
+    command: build
     projects: 'src/**/*.csproj'
     arguments: '--configuration $(buildConfiguration) -p:Version=$(Build.BuildNumber)"'
     
@@ -42,14 +43,6 @@ steps:
     projects: '**/*.UnitTests.csproj'
     arguments: '--configuration $(buildConfiguration) --no-build'
   enabled: false
-
-- task: DotNetCoreCLI@2
-  displayName: 'Publish Function App'
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'src/SFA.DAS.SecureMessageService.Functions/SFA.DAS.SecureMessageService.Functions.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish Website'
