@@ -67,7 +67,7 @@ steps:
     dockerfile: Dockerfile
     repository: apprenticeshipsdevops/das-secure-message-service
     tags: |
-      $(GITVERSION_SemVer)
+      $(Build.BuildNumber)
       latest
 
 - task: Docker@2
@@ -75,7 +75,7 @@ steps:
   inputs:
     command: push
     repository: apprenticeshipsdevops/das-secure-message-service
-    tags: $(GITVERSION_SemVer)
+    tags: $(Build.BuildNumber)
 
 - task: Docker@2
   displayName: Push Web Image Latest if master
