@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+using System;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.HttpOverrides;
-using SFA.DAS.SecureMessageService.Infrastructure;
 using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
 using SFA.DAS.ToolService.Authentication.Entities;
 
@@ -32,12 +33,12 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
-                options.ForwardedHeaders =
-                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                    ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
             });
 
-            services.AddHealthChecks();
-            services.AddAuthenticationProviders(authenticationOptions.Get<AuthenticationConfigurationEntity>());
             services.Configure<SharedConfig>(Configuration);
             services.AddSingleton<IMessageService, MessageService>();
             services.AddSingleton<IProtectionRepository, ProtectionRepository>();
@@ -81,16 +82,29 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            // services.AddAntiforgery(options => 
-            // {
-            //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            // });
+            services.AddAntiforgery(options => 
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
+            services.AddHealthChecks();
+
+            services.AddAuthenticationProviders(authenticationOptions.Get<AuthenticationConfigurationEntity>());
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
             app.UseForwardedHeaders();
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                context.Response.Headers.Add("X-Xss-Protection", "1");
+                await next();
+            });
 
             app.Use(async (context, next) =>
             {
@@ -116,17 +130,11 @@ namespace SFA.DAS.SecureMessageService.Web
                 app.UseHsts();
             }
 
-            app.Use(async (context, next) =>
-            {
-                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                context.Response.Headers.Add("X-Xss-Protection", "1");
-                await next();
-            });
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UsePathBase("/Messages"); // Move to cofig
+            app.UsePathBase("/messages");
+            app.UseAuthentication();
             app.UseHealthChecks("/health");
 
             app.UseMvc(routes =>

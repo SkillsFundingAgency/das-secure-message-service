@@ -1,97 +1,113 @@
-name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
   branches:
     include:
-      - "app_modification_for_ag"
-  paths:
-    exclude:
-      - README.md
-
-pr:
-  branches:
-    include:
       - "*"
 
-workspace:
-  clean: all
+pr: none
 
-pool:
-  name: 'Hosted Ubuntu 1604'
-  # demands:
-  #   - JAVA_HOME
+workspace:
+    clean: all
 
 variables:
-  # - group: "ESFA - SonarCloud"
-  - name: buildConfiguration
-    value: "Release"
-  - name: solutionPath
-    value: "$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln"
-  # - name: sonarCloudProjectKey
-  #   value: "SkillsFundingAgency_das-secure-message-service"
+  buildConfiguration: 'release'
+
+pool:
+  name: 'DAS - Continuous Integration'
 
 steps:
-  # - task: SonarCloudPrepare@1
-  #   displayName: "Prepare Sonar Analyzer"
-  #   inputs:
-  #     SonarCloud: "$(SonarCloudConnectionId)"
-  #     organization: "$(SonarCloudOrganisationKey)"
-  #     projectName: "$(Build.DefinitionName)"
-  #     projectKey: "$(sonarCloudProjectKey)"
-  #     extraProperties: |
-  #       sonar.pullrequest.provider=GitHub
-  #       sonar.pullrequest.github.repository=$(Build.Repository.Name)
-  #       sonar.cs.opencover.reportsPaths=$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.opencover.xml
+- task: gittools.gitversion-preview.gitversion-task.GitVersion@5
+  displayName: GitVersion
+  inputs:
+    configFilePath: GitVersion.yml
+    updateAssemblyInfo: true
 
-  - task: DotNetCoreCLI@2
-    displayName: Restore
-    inputs:
-      command: restore
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration)"
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: 'src/**/*.csproj'
+    noCache: true
 
-  - task: DotNetCoreCLI@2
-    displayName: Build
-    inputs:
-      command: build
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration)"
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: 'src/**/*.csproj'
+    arguments: '--configuration $(buildConfiguration) -p:Version=$(Build.BuildNumber)"'
+    
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '**/*.UnitTests.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-build'
+  enabled: false
 
-  - task: DotNetCoreCLI@2
-    displayName: Test
-    inputs:
-      command: test
-      projects: "**/*.UnitTests.csproj"
-      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Function App'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'src/SFA.DAS.SecureMessageService.Functions/SFA.DAS.SecureMessageService.Functions.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
 
-  # - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
-  #   displayName: "Run Code Analysis"
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Website'
+  inputs:
+    command: publish
+    publishWebProjects: false
+    modifyOutputPath: false
+    zipAfterPublish: false
+    projects: 'src/SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(system.defaultworkingdirectory)/src/SFA.DAS.SecureMessageService.Web/publish --no-restore --no-build'
 
-  - task: DotNetCoreCLI@2
-    displayName: "Publish"
-    inputs:
-      command: publish
-      publishWebProjects: true
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
-  
-  - task: DotNetCoreCLI@2
-    displayName: "Publish"
-    inputs:
-      command: publish
-      publishWebProjects: false
-      projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
-      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
+- task: Docker@2
+  displayName: Login to Docker Hub
+  inputs:
+    command: login
+    containerRegistry: 'Apprenticeships DevOps Docker Hub'
 
-  - task: CopyFiles@2
-    displayName: "Copy Files to: $(build.artifactstagingdirectory)"
-    inputs:
-      Contents: |
-        azure/**
-      TargetFolder: "$(build.artifactstagingdirectory)/publish"
-      OverWrite: true
+- task: Docker@2
+  displayName: Build Web Image
+  inputs:
+    command: build
+    dockerfile: Web.Dockerfile
+    repository: apprenticeshipsdevops/das-whitelist-service
+    tags: |
+      $(build.buildnumber)
+      latest
 
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Artifact"
-    inputs:
-      PathtoPublish: "$(build.artifactstagingdirectory)/publish"
+- task: Docker@2
+  displayName: Push Web Image
+  inputs:
+    command: push
+    repository: apprenticeshipsdevops/das-whitelist-service
+    tags: $(build.buildnumber)
+
+- task: Docker@2
+  displayName: Push Web Image Latest if master
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  inputs:
+    command: push
+    repository: apprenticeshipsdevops/das-whitelist-service
+    tags: latest
+    
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  inputs:
+    contents: |
+     azure/**
+    targetFolder: '$(build.artifactstagingdirectory)/publish'
+    overWrite: true
+
+- task: ArchiveFiles@2
+  displayName: 'Zip Web'
+  inputs:
+    rootFolderOrFile: $(system.defaultworkingdirectory)/src/SFA.DAS.SecureMessageService.Web/publish
+    includeRootFolder: false
+    archiveFile: $(build.artifactstagingdirectory)/publish/SFA.DAS.SecureMessageService.Web.zip
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    pathtoPublish: '$(build.artifactstagingdirectory)/publish'
