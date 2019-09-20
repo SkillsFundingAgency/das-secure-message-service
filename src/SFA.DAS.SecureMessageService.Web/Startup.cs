@@ -80,8 +80,6 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
             services.AddAntiforgery(options => 
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -97,7 +95,6 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
-            app.UsePathBase("/messages");
 
             app.UseForwardedHeaders();
 
@@ -132,6 +129,7 @@ namespace SFA.DAS.SecureMessageService.Web
                 app.UseHsts();
             }
 
+            // app.UsePathBase("/messages");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
