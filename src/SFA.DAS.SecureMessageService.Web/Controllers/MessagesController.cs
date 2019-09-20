@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
@@ -35,7 +29,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
                 logger.LogError($"Message with key {key} does not exist");
                 return View("InvalidMessageKey");
             }
-      
+
             // Create url and return view
             var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
             var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
@@ -55,7 +49,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost("messages/{key}")]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
             logger.LogInformation($"Attempting to retrieve message: {key}");
