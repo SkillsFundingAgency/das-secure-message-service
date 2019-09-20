@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
@@ -31,7 +28,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         }
 
         [HttpPost("")]
-        // [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> IndexSubmitMessage(IndexViewModel indexViewModel)
         {
             if (String.IsNullOrEmpty(indexViewModel.Message))
