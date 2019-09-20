@@ -31,13 +31,13 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
             }
 
             // Create url and return view
-            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
+            var url = $"{Request.Scheme}://{Request.Host}/messages/view/{key}";
             var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }
 
         [AllowAnonymous]
-        [HttpGet("messages/{key}")]
+        [HttpGet("view/{key}")]
         public async Task<IActionResult> ConfirmViewMessage(string key)
         {
             var messageExists = await messageService.MessageExists(key);
@@ -48,7 +48,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("messages/{key}")]
+        [HttpPost("view/{key}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
