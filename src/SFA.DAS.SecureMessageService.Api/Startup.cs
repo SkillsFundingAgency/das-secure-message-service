@@ -42,12 +42,13 @@ namespace SFA.DAS.SecureMessageService.Api
                     .AddJwtBearer(auth =>
                     {
                         auth.Authority =
-                            $"https://login.microsoftonline.com/{Configuration["AzureAd:Tenant"]}";
+                            $"https://login.microsoftonline.com/{Configuration["AzureAdTenant"]}";
                         auth.TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidAudiences = new List<string>
                             {
-                                Configuration["AzureAd:Identifier"]
+                                Configuration["AzureADResourceId"],
+                                Configuration["AzureADClientId"]
                             }
                         };
                     });

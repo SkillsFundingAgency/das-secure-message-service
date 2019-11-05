@@ -32,6 +32,24 @@
                 "description": "Connection string for the redis cache."
             }
         },
+        "AzureADTenant": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Tenant the API lives in"
+            }
+        },
+        "AzureADClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Client Id of the app registration"
+            }
+        },
+        "AzureADResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Identifier of the app registration"
+            }
+        },
         "cdnUrl": {
             "type": "string",
             "metadata": {
@@ -181,6 +199,18 @@
                             {
                                 "name": "ASPNETCORE_ENVIRONMENT",
                                 "value": "[parameters('aspnetCoreEnvironment')]"
+                            },
+                            {
+                                "name": "AzureAdTenant",
+                                "value": "[parameters('AzureAdTenant')]"
+                            },
+                            {
+                                "name": "AzureADResourceId",
+                                "value": "[parameters('AzureADResourceId')]"
+                            },
+                            {
+                                "name": "AzureADClientId",
+                                "value": "[parameters('AzureADClientId')]"
                             }
                         ]
                     },
