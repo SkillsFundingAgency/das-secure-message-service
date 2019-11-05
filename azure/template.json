@@ -199,18 +199,6 @@
                             {
                                 "name": "ASPNETCORE_ENVIRONMENT",
                                 "value": "[parameters('aspnetCoreEnvironment')]"
-                            },
-                            {
-                                "name": "AzureAdTenant",
-                                "value": "[parameters('AzureAdTenant')]"
-                            },
-                            {
-                                "name": "AzureADResourceId",
-                                "value": "[parameters('AzureADResourceId')]"
-                            },
-                            {
-                                "name": "AzureADClientId",
-                                "value": "[parameters('AzureADClientId')]"
                             }
                         ]
                     },
@@ -316,6 +304,18 @@
                             {
                                 "name": "UIBaseUrl",
                                 "value": "[concat('https://',  if(greater(length(parameters('customHostName')), 0), parameters('customHostName'), concat(parameters('appServiceName'), '.azurewebsites.net')))]"
+                            },
+                            {
+                                "name": "AzureAdTenant",
+                                "value": "[parameters('AzureAdTenant')]"
+                            },
+                            {
+                                "name": "AzureADResourceId",
+                                "value": "[parameters('AzureADResourceId')]"
+                            },
+                            {
+                                "name": "AzureADClientId",
+                                "value": "[parameters('AzureADClientId')]"
                             }
                         ]
                     }
