@@ -32,19 +32,19 @@
                 "description": "Connection string for the redis cache."
             }
         },
-        "AzureADTenant": {
+        "azureADTenant": {
             "type": "string",
             "metadata": {
                 "description": "Azure Tenant the API lives in"
             }
         },
-        "AzureADClientId": {
+        "azureADClientId": {
             "type": "string",
             "metadata": {
                 "description": "Client Id of the app registration"
             }
         },
-        "AzureADResourceId": {
+        "azureADResourceId": {
             "type": "string",
             "metadata": {
                 "description": "Resource Identifier of the app registration"
@@ -307,15 +307,15 @@
                             },
                             {
                                 "name": "AzureAdTenant",
-                                "value": "[parameters('AzureAdTenant')]"
+                                "value": "[parameters('azureAdTenant')]"
                             },
                             {
                                 "name": "AzureADResourceId",
-                                "value": "[parameters('AzureADResourceId')]"
+                                "value": "[parameters('azureADResourceId')]"
                             },
                             {
                                 "name": "AzureADClientId",
-                                "value": "[parameters('AzureADClientId')]"
+                                "value": "[parameters('azureADClientId')]"
                             }
                         ]
                     }
