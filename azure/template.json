@@ -32,6 +32,24 @@
                 "description": "Connection string for the redis cache."
             }
         },
+        "azureADTenant": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Tenant the API lives in"
+            }
+        },
+        "azureADClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "Client Id of the app registration"
+            }
+        },
+        "azureADResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Identifier of the app registration"
+            }
+        },
         "cdnUrl": {
             "type": "string",
             "metadata": {
@@ -286,6 +304,18 @@
                             {
                                 "name": "UIBaseUrl",
                                 "value": "[concat('https://',  if(greater(length(parameters('customHostName')), 0), parameters('customHostName'), concat(parameters('appServiceName'), '.azurewebsites.net')))]"
+                            },
+                            {
+                                "name": "AzureAdTenant",
+                                "value": "[parameters('azureAdTenant')]"
+                            },
+                            {
+                                "name": "AzureADResourceId",
+                                "value": "[parameters('azureADResourceId')]"
+                            },
+                            {
+                                "name": "AzureADClientId",
+                                "value": "[parameters('azureADClientId')]"
                             }
                         ]
                     }
