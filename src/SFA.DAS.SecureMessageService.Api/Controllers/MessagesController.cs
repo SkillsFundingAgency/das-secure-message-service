@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Api.Models;
