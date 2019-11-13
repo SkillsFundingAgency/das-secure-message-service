@@ -9,9 +9,11 @@ using SFA.DAS.SecureMessageService.Core.IRepositories;
 using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 using StackExchange.Redis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
     public static class DependencyResolution
     {
         public static IServiceCollection SetupSecureMessageService
