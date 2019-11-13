@@ -11,6 +11,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         private readonly IHostingEnvironment _env;
