@@ -8,6 +8,7 @@ using SFA.DAS.SecureMessageService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
