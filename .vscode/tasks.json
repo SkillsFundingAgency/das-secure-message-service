@@ -13,7 +13,7 @@
             "type": "process",
             "group": "build",
             "presentation": {
-                "reveal": "silent"
+                "reveal": "always"
             },
             "problemMatcher": "$msCompile"
         },
@@ -27,7 +27,21 @@
             "type": "process",
             "group": "build",
             "presentation": {
-                "reveal": "silent"
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Api Project",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/SFA.DAS.SecureMessageService.Api"
+            ],
+            "type": "process",
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
             },
             "problemMatcher": "$msCompile"
         },
@@ -40,6 +54,9 @@
             ],
             "type": "process",
             "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
             "problemMatcher": "$msCompile"
         },
         {
@@ -55,6 +72,9 @@
             ],
             "type": "process",
             "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
             "problemMatcher": "$msCompile"
         },
         {
@@ -67,7 +87,7 @@
             "type": "process",
             "group": "build",
             "presentation": {
-                "reveal": "silent"
+                "reveal": "always"
             },
             "problemMatcher": "$msCompile"
         }

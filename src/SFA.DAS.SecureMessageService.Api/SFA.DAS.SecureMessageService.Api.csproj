@@ -1,17 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <ProjectGuid>{80E4DE42-B6D0-43EA-809F-EBC4507610A8}</ProjectGuid>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <ProjectGuid>{8F405392-2855-4D44-9D9F-4CA8E7D330A9}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="2.2.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.SecureMessageService.Core\SFA.DAS.SecureMessageService.Core.csproj" />
+    <ProjectReference Include="..\SFA.DAS.SecureMessageService.Infrastructure\SFA.DAS.SecureMessageService.Infrastructure.csproj" />
   </ItemGroup>
+
 </Project>

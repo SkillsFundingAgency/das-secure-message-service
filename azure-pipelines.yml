@@ -74,6 +74,14 @@ steps:
       publishWebProjects: true
       projects: $(solutionPath)
       arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
+  
+  - task: DotNetCoreCLI@2
+    displayName: "Publish"
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
+      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
 
   - task: CopyFiles@2
     displayName: "Copy Files to: $(build.artifactstagingdirectory)"
