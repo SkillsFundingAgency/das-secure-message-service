@@ -11,8 +11,7 @@ namespace SFA.DAS.SecureMessageService.Core.Entities
             get => new Dictionary<int, string>()
                 {
                     { 1, "Hour" },
-                    { 24, "Day" },
-                    { 168, "Week" }
+                    { 24, "Day" }
                 };
         }
     }
