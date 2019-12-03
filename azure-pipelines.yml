@@ -81,7 +81,7 @@ steps:
               latest
 
     - task: Docker@2
-      displayName: Build Web Image
+      displayName: Build Api Image
       inputs:
           command: build
           dockerfile: ApiDockerfile
