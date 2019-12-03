@@ -50,7 +50,7 @@ namespace SFA.DAS.SecureMessageService.Api
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DAS Secure Message Service API", Version = "v1" });
                     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
                         In = ParameterLocation.Header,
-                        Name = "Authorization"                        
+                        Name = "Authorization"
                     });
                 });
         }
@@ -68,17 +68,17 @@ namespace SFA.DAS.SecureMessageService.Api
                 app.UseHsts();
             }
 
+            app.UsePathBase("/api/messages");
 
             // Enable app insights logging
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DAS Secure Message Service API");
+                    c.SwaggerEndpoint("/api/messages/swagger/v1/swagger.json", "DAS Secure Message Service API");
                 });
 
             app.UseAuthentication();
-            app.UsePathBase("/messages/api");
             app.UseHttpsRedirection();
             app.UseMvc();
         }
