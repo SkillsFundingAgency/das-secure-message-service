@@ -68,7 +68,6 @@ namespace SFA.DAS.SecureMessageService.Api
                 app.UseHsts();
             }
 
-            app.UsePathBase("/messages/api");
 
             // Enable app insights logging
 
@@ -79,6 +78,7 @@ namespace SFA.DAS.SecureMessageService.Api
                 });
 
             app.UseAuthentication();
+            app.UsePathBase("/messages/api");
             app.UseHttpsRedirection();
             app.UseMvc();
         }
