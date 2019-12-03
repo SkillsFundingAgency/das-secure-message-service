@@ -54,6 +54,16 @@ steps:
           projects: "src/SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj"
           arguments: "--configuration $(buildConfiguration) --output $(system.defaultworkingdirectory)/src/SFA.DAS.SecureMessageService.Web/publish --no-restore --no-build"
 
+    - task: DotNetCoreCLI@2
+      displayName: "Publish API"
+      inputs:
+          command: publish
+          publishWebProjects: false
+          modifyOutputPath: false
+          zipAfterPublish: false
+          projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
+          arguments: "--configuration $(buildConfiguration) --output $(system.defaultworkingdirectory)/src/SFA.DAS.SecureMessageService.Api/publish --no-restore --no-build"
+
     - task: Docker@2
       displayName: Login to Docker Hub
       inputs:
@@ -64,8 +74,18 @@ steps:
       displayName: Build Web Image
       inputs:
           command: build
-          dockerfile: Dockerfile
+          dockerfile: Web.Dockerfile
           repository: apprenticeshipsdevops/das-secure-message-service
+          tags: |
+              $(Build.BuildNumber)
+              latest
+
+    - task: Docker@2
+      displayName: Build Web Image
+      inputs:
+          command: build
+          dockerfile: ApiDockerfile
+          repository: apprenticeshipsdevops/das-secure-message-service-api
           tags: |
               $(Build.BuildNumber)
               latest
@@ -78,6 +98,13 @@ steps:
           tags: $(Build.BuildNumber)
 
     - task: Docker@2
+      displayName: Push Api Image
+      inputs:
+          command: push
+          repository: apprenticeshipsdevops/das-secure-message-service-api
+          tags: $(Build.BuildNumber)
+
+    - task: Docker@2
       displayName: Push Web Image Latest if master
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       inputs:
@@ -85,20 +112,13 @@ steps:
           repository: apprenticeshipsdevops/das-secure-message-service
           tags: latest
 
-    - task: CopyFiles@2
-      displayName: "Copy Files to: $(build.artifactstagingdirectory)"
+    - task: Docker@2
+      displayName: Push Api Image Latest if master
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       inputs:
-          contents: |
-              azure/**
-          targetFolder: "$(build.artifactstagingdirectory)/publish"
-          overWrite: true
-
-    - task: ArchiveFiles@2
-      displayName: "Zip Web"
-      inputs:
-          rootFolderOrFile: $(system.defaultworkingdirectory)/src/SFA.DAS.SecureMessageService.Web/publish
-          includeRootFolder: false
-          archiveFile: $(build.artifactstagingdirectory)/publish/SFA.DAS.SecureMessageService.Web.zip
+          command: push
+          repository: apprenticeshipsdevops/das-secure-message-service-api
+          tags: latest
 
     - task: PublishBuildArtifacts@1
       displayName: "Publish Artifact"
