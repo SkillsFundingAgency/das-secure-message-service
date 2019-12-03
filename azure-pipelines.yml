@@ -84,7 +84,7 @@ steps:
       displayName: Build Api Image
       inputs:
           command: build
-          dockerfile: ApiDockerfile
+          dockerfile: Api.Dockerfile
           repository: apprenticeshipsdevops/das-secure-message-service-api
           tags: |
               $(Build.BuildNumber)
