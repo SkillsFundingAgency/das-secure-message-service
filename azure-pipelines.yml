@@ -119,8 +119,3 @@ steps:
           command: push
           repository: apprenticeshipsdevops/das-secure-message-service-api
           tags: latest
-
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Artifact"
-      inputs:
-          pathtoPublish: "$(build.artifactstagingdirectory)/publish"
