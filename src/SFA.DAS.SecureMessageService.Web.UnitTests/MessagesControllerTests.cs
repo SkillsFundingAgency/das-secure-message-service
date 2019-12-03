@@ -79,7 +79,7 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             var actualResult = result as ViewResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(typeof(ShowMessageUrlViewModel), actualResult.Model.GetType());
-            Assert.AreEqual(((ShowMessageUrlViewModel)actualResult.Model).Url, $"{testHttpScheme}://{gatewayHost}:{testPort}/messages/{testKey}");
+            Assert.AreEqual(((ShowMessageUrlViewModel)actualResult.Model).Url, $"{testHttpScheme}://{gatewayHost}:{testPort}/messages/view/{testKey}");
             messageService.VerifyAll();
         }
 

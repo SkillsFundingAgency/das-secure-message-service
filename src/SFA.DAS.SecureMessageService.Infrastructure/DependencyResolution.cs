@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -37,11 +37,11 @@ namespace SFA.DAS.SecureMessageService.Infrastructure
                     var redisConnectionString = Configuration["RedisConnectionString"];
                     services.AddStackExchangeRedisCache(options =>
                     {
-                        options.Configuration = $"{redisConnectionString},DefaultDatabase=1";
+                        options.Configuration = $"{redisConnectionString},DefaultDatabase=0";
                     });
                     var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
                     services.AddDataProtection()
-                        .SetApplicationName("das-sms-svc-web")
+                        .SetApplicationName("das-tools-service")
                         .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
                 }
             }

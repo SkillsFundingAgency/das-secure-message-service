@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.HttpOverrides;
 using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
 using SFA.DAS.ToolService.Authentication.Entities;
+using SFA.DAS.SecureMessageService.Infrastructure;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -39,48 +40,9 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.KnownProxies.Clear();
             });
 
-            services.Configure<SharedConfig>(Configuration);
-            services.AddSingleton<IMessageService, MessageService>();
-            services.AddSingleton<IProtectionRepository, ProtectionRepository>();
-            services.AddSingleton<ICacheRepository, CacheRepository>();
-            services.AddSingleton<IDasDistributedCache, DasDistributedCache>();
-            services.AddSingleton<IDasDataProtector, DasDataProtector>();
-            services.AddSingleton<ISecureKeyRepository, SecureKeyRepository>();
+            services.SetupSecureMessageService(Configuration, _env);
 
-            try
-            {
-                if (_env.IsDevelopment())
-                {
-                    services.AddDistributedMemoryCache();
-                }
-                else
-                {
-                    var redisConnectionString = Configuration["RedisConnectionString"];
-
-                    services.AddStackExchangeRedisCache(options =>
-                    {
-                        options.Configuration = $"{redisConnectionString},DefaultDatabase=1";
-                    });
-
-                    var redis = ConnectionMultiplexer.Connect($"{redisConnectionString},DefaultDatabase=0");
-                    services.AddDataProtection()
-                        .SetApplicationName("das-tools-service")
-                        .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Could not create redis cache connection", e);
-            }
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-            services.AddAntiforgery(options => 
+            services.AddAntiforgery(options =>
             {
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
