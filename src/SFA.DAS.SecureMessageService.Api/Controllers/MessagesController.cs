@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.SecureMessageService.Core.IServices;
@@ -39,7 +39,7 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
 
             var baseUrl = configuration["UIBaseUrl"];
             baseUrl = baseUrl.TrimEnd('/');
-            var url = $"{baseUrl}/messages/{key}";
+            var url = $"{baseUrl}/view/{key}";
             return Ok(url);
         }
     }

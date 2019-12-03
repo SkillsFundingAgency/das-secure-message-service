@@ -51,7 +51,7 @@ namespace SFA.DAS.SecureMessageService.Api.UnitTests
             var actualResult = result as OkObjectResult;
 
             //Assert
-            Assert.AreEqual($"{testHttpScheme}://{testHostname}/messages/{testKey}", actualResult.Value.ToString());
+            Assert.AreEqual($"{testHttpScheme}://{testHostname}/view/{testKey}", actualResult.Value.ToString());
             messageService.VerifyAll();
         }
     }
