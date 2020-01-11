@@ -40,15 +40,15 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.SetupSecureMessageService(Configuration, _env);
 
-            services.AddAntiforgery(options =>
-            {
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            });
-
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = ".AspNet.SharedCookie";
                 options.Cookie.Path = "/";
+            });
+
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
             services.AddHealthChecks();
