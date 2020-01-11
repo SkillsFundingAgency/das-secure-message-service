@@ -49,11 +49,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.SetupSecureMessageService(Configuration, _env);
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.Name = ".AspNet.SharedCookie";
-                options.Cookie.Path = "/";
-            });
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/Login");
 
             services.AddAntiforgery(options =>
             {
