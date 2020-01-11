@@ -99,7 +99,7 @@ namespace SFA.DAS.SecureMessageService.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseAuthentication();
+            // app.UseAuthentication();
             app.UseHealthChecks("/health");
 
             app.UseMvc(routes =>
