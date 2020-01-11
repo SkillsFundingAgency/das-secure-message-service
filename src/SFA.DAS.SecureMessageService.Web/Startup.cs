@@ -44,7 +44,8 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });
+            })
+            .AddCookie();
 
             services.SetupSecureMessageService(Configuration, _env);
 
