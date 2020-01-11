@@ -102,11 +102,11 @@ namespace SFA.DAS.SecureMessageService.Web
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
             app.UsePathBase("/messages");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseAuthentication();
             app.UseHealthChecks("/health");
 
             app.UseMvc(routes =>
