@@ -53,7 +53,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.AddHealthChecks();
 
-            services.AddAuth0(authenticationOptions.Get<AuthenticationConfigurationEntity>());
+            // services.AddAuth0(authenticationOptions.Get<AuthenticationConfigurationEntity>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
