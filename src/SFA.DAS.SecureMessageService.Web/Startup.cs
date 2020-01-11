@@ -45,6 +45,12 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = ".AspNet.SharedCookie";
+                options.Cookie.Path = "/";
+            });
+
             services.AddHealthChecks();
 
             services.AddAuth0(authenticationOptions.Get<AuthenticationConfigurationEntity>());
