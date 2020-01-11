@@ -45,11 +45,13 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie();
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
+            });
 
             services.SetupSecureMessageService(Configuration, _env);
-
-            services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/Login");
 
             services.AddAntiforgery(options =>
             {
