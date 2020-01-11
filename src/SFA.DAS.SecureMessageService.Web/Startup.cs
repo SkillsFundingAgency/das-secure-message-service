@@ -1,5 +1,3 @@
-using System;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -49,7 +47,7 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.AddHealthChecks();
 
-            services.AddAuthenticationProviders(authenticationOptions.Get<AuthenticationConfigurationEntity>());
+            services.AddAuth0(authenticationOptions.Get<AuthenticationConfigurationEntity>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

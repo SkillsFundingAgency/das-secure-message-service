@@ -9,7 +9,7 @@ using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
-    [Authorize(Policy="ValidOrgsOnly")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger logger;

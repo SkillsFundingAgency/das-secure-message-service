@@ -7,7 +7,7 @@ using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
-    [Authorize(Policy="ValidOrgsOnly")]
+    [Authorize]
     public class MessagesController : Controller
     {
         private readonly IMessageService messageService;
