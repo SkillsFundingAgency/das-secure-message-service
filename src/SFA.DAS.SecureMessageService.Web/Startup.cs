@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
 using SFA.DAS.ToolService.Authentication.Entities;
 using SFA.DAS.SecureMessageService.Infrastructure;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -36,6 +37,13 @@ namespace SFA.DAS.SecureMessageService.Web
                     ForwardedHeaders.XForwardedProto;
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
+            });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             });
 
             services.SetupSecureMessageService(Configuration, _env);
