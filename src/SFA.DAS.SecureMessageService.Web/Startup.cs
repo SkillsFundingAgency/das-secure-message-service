@@ -47,8 +47,8 @@ namespace SFA.DAS.SecureMessageService.Web
             })
             .AddCookie(options =>
             {
-                options.LoginPath = "/Account/Login";
-                options.LogoutPath = "/Account/Logout";
+                options.LoginPath = new PathString("/Account/Login");
+                options.LogoutPath = new PathString("/Account/Logout");
             });
 
             services.SetupSecureMessageService(Configuration, _env);
@@ -59,8 +59,6 @@ namespace SFA.DAS.SecureMessageService.Web
             });
 
             services.AddHealthChecks();
-
-            // services.AddAuth0(authenticationOptions.Get<AuthenticationConfigurationEntity>());
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -102,11 +100,11 @@ namespace SFA.DAS.SecureMessageService.Web
                 app.UseHsts();
             }
 
-            app.UseAuthentication();
             app.UsePathBase("/messages");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseAuthentication();
             app.UseHealthChecks("/health");
 
             app.UseMvc(routes =>
