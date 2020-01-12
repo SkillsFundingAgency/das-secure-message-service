@@ -53,8 +53,7 @@ namespace SFA.DAS.SecureMessageService.Web
                 {
                     OnRedirectToLogin = (context) =>
                     {
-                        context.HttpContext.Response.Redirect($"https://{Configuration["BaseUrl"]}/Account/login");
-                        context.RedirectUri = "/messages";
+                        context.HttpContext.Response.Redirect($"https://{Configuration["BaseUrl"]}/Account/login?returnUrl=/messages");
                         return Task.CompletedTask;
                     }
                 };
