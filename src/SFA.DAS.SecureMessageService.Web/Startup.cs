@@ -48,17 +48,16 @@ namespace SFA.DAS.SecureMessageService.Web
             })
             .AddCookie(options =>
             {
-                options.LoginPath = new PathString("/Account/Login");
                 options.LogoutPath = new PathString("/Account/Logout");
-                options.Cookie.Path = "/";
-                // options.Events = new CookieAuthenticationEvents()
-                // {
-                //     OnRedirectToLogin = (context) =>
-                //     {
-                //         context.HttpContext.Response.Redirect($"https://{Configuration["BaseUrl"]}/Account/login");
-                //         return Task.CompletedTask;
-                //     }
-                // };
+                options.Events = new CookieAuthenticationEvents()
+                {
+                    OnRedirectToLogin = (context) =>
+                    {
+                        context.HttpContext.Response.Redirect($"https://{Configuration["BaseUrl"]}/Account/login");
+                        context.RedirectUri = "/messages";
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.SetupSecureMessageService(Configuration, _env);
