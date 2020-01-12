@@ -10,6 +10,7 @@ using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
 using SFA.DAS.ToolService.Authentication.Entities;
 using SFA.DAS.SecureMessageService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -47,8 +48,15 @@ namespace SFA.DAS.SecureMessageService.Web
             })
             .AddCookie(options =>
             {
-                options.LoginPath = new PathString("/Account/Login");
                 options.LogoutPath = new PathString("/Account/Logout");
+                options.Events = new CookieAuthenticationEvents()
+                {
+                    OnRedirectToLogin = (context) =>
+                    {
+                        context.HttpContext.Response.Redirect($"https://{Configuration['BaseUrl']}/Account/login");
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.SetupSecureMessageService(Configuration, _env);
