@@ -77,6 +77,13 @@
                 "description": "The name of the resource group that holds the keyvault resource."
             }
         },
+        "keyVaultCertificateName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The name of the key vault certificate to use."
+            }
+        },
         "applicationPathBase": {
             "type": "string",
             "metadata": {
@@ -104,8 +111,7 @@
         "appServicePlanInstances": 1,
         "redisCacheSKU": "Basic",
         "redisCacheFamily": "C",
-        "redisCacheCapacity": 0,
-        "keyvaultCertificateName": "[replace(parameters('customHostName'), '.', '-')]"
+        "redisCacheCapacity": 0
     },
     "resources": [
         {
@@ -121,7 +127,7 @@
                 },
                 "parameters": {
                     "keyVaultCertificateName": {
-                        "value": "[variables('keyVaultCertificateName')]"
+                        "value": "[parameters('keyVaultCertificateName')]"
                     },
                     "keyVaultName": {
                         "value": "[parameters('keyVaultName')]"
