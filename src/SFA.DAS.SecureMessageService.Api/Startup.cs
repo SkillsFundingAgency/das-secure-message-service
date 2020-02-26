@@ -27,22 +27,22 @@ namespace SFA.DAS.SecureMessageService.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.SetupSecureMessageService(Configuration, _env);
 
-            services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
-                    .AddJwtBearer(auth =>
+        services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+                .AddJwtBearer(auth =>
+                {
+                    auth.Authority =
+                        $"https://login.microsoftonline.com/{Configuration["AzureAdTenant"]}";
+                    auth.TokenValidationParameters = new TokenValidationParameters
                     {
-                        auth.Authority =
-                            $"https://login.microsoftonline.com/{Configuration["AzureAdTenant"]}";
-                        auth.TokenValidationParameters = new TokenValidationParameters
+                        ValidAudiences = new List<string>
                         {
-                            ValidAudiences = new List<string>
-                            {
-                                Configuration["AzureADResourceId"],
-                                Configuration["AzureADClientId"]
-                            }
-                        };
-                    });
+                            Configuration["AzureADResourceId"],
+                            Configuration["AzureADClientId"]
+                        }
+                    };
+                });
+
             services.AddApplicationInsightsTelemetry();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSwaggerGen(c =>
