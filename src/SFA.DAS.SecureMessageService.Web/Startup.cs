@@ -11,6 +11,7 @@ using SFA.DAS.ToolService.Authentication.Entities;
 using SFA.DAS.SecureMessageService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
+using System;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -49,7 +50,13 @@ namespace SFA.DAS.SecureMessageService.Web
             .AddCookie(options =>
             {
                 options.LogoutPath = new PathString("/Account/Logout");
-                options.Events = new CookieAuthenticationEvents()
+                options.AccessDeniedPath = new PathString("/Error/403");
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                options.Cookie.Name = "SFA.DAS.ToolService.Web.Auth";
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.SlidingExpiration = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.CookieManager = new ChunkingCookieManager() { ChunkSize = 3000 }; options.Events = new CookieAuthenticationEvents()
                 {
                     OnRedirectToLogin = (context) =>
                     {
