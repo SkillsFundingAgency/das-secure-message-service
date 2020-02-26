@@ -1,0 +1,25 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: das-tool-service-web
+  namespace: {{Namespace}}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`{{IngressHost}}`) && PathPrefix(`/messages`)
+      kind: Rule
+      priority: 1
+      services:
+        - name: das-secure-message-service-web
+          port: 80
+          healthCheck:
+            path: /messages/health
+            host: {{IngressHost}}
+            intervalSeconds: 7
+            timeoutSeconds: 60
+      middlewares:
+        - name: das-tool-service-redirectscheme
+  tls:
+    secretName: {{TlsSecretName}}

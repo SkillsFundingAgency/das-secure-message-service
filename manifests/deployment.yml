@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: das-secure-message-service-web
+    service: das-tool-service
+  name: das-secure-message-service-web
+  namespace: {{Namespace}}
+  resourceVersion: "1063256"
+  selfLink: /api/v1/namespaces/engineering/services/das-secure-message-service-web
+  uid: 5392dc1a-c2b5-4ca7-8522-1e8c320aab39
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: das-secure-message-service-web
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: das-secure-message-service-web
+    service: das-tool-service
+  name: das-secure-message-service-web
+  namespace: {{Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: das-secure-message-service-web
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: das-secure-message-service-web
+        service: das-tool-service
+    spec:
+      containers:
+      - env:
+        - name: ConfigurationStorageConnectionString
+          value: {{ConfigurationStorageConnectionString}}
+        - name: LoggingRedisConnectionString
+          value: {{LoggingRedisConnectionString}}
+        - name: LoggingRedisKey
+          value: logstash
+        - name: EnvironmentName
+          value: {{EnvironmentName}}
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          value: TBA
+        - name: Cdn__Url
+          value: https://das-at-frnt-end.azureedge.net
+        - name: BaseUrl
+          value: tools.apprenticeships.education.gov.uk
+        - name: RedisConnectionString
+          value: {{RedisConnectionString}}
+
+        image: apprenticeshipsdevops/das-secure-message-service:{{buildNumber}}
+        imagePullPolicy: IfNotPresent
+        name: das-secure-message-service
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 25m
+            memory: 512Mi
