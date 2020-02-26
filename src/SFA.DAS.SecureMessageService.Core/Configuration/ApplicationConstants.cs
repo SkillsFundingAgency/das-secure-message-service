@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
-namespace SFA.DAS.SecureMessageService.Core.Entities
+namespace SFA.DAS.SecureMessageService.Core.Configuration
 {
-    [ExcludeFromCodeCoverage]
-    public class Constants
+    public static class ApplicationConstants
     {
+        public const string ApplicationName = "das-tools-service";
         public static Dictionary<int, string> TtlValues
         {
             get => new Dictionary<int, string>()

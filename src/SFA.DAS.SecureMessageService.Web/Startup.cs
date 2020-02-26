@@ -12,26 +12,42 @@ using SFA.DAS.SecureMessageService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
 using System;
+using System.IO;
+using Microsoft.IdentityModel.Logging;
+using SFA.DAS.SecureMessageService.Web.AppStart;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
     public class Startup
     {
-        private readonly IHostingEnvironment _env;
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
-        {
-            Configuration = configuration;
-            _env = env;
-        }
+        private readonly IConfiguration _configuration;
+        private readonly IHostingEnvironment _environment;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        {
+            _environment = environment;
+            var config = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true)
+                .AddJsonFile("appsettings.Development.json", true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            _configuration = config;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var authenticationOptions = Configuration.GetSection("Authentication");
 
-            services.Configure<AuthenticationConfigurationEntity>(authenticationOptions);
+            IdentityModelEventSource.ShowPII = false;
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -41,32 +57,9 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.KnownProxies.Clear();
             });
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddCookie(options =>
-            {
-                options.LogoutPath = new PathString("/Account/Logout");
-                options.AccessDeniedPath = new PathString("/Error/403");
-                options.ExpireTimeSpan = TimeSpan.FromHours(1);
-                options.Cookie.Name = "SFA.DAS.ToolService.Web.Auth";
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.SlidingExpiration = true;
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.CookieManager = new ChunkingCookieManager() { ChunkSize = 3000 }; options.Events = new CookieAuthenticationEvents()
-                {
-                    OnRedirectToLogin = (context) =>
-                    {
-                        context.HttpContext.Response.Redirect($"https://{Configuration["BaseUrl"]}/Account/login?returnUrl=/messages");
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+            services.AddServices(_configuration);
 
-            services.SetupSecureMessageService(Configuration, _env);
+            services.AddOptions();
 
             services.AddAntiforgery(options =>
             {
@@ -75,14 +68,41 @@ namespace SFA.DAS.SecureMessageService.Web
 
             services.AddHealthChecks();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+            .AddControllersAsServices()
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddApplicationInsightsTelemetry(_configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+
+            services.AddDistributedCache(_configuration, _environment);
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.IsEssential = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogger<Startup> logger)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
 
-            app.UseForwardedHeaders();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto
+            });
 
             app.Use(async (context, next) =>
             {
@@ -91,34 +111,31 @@ namespace SFA.DAS.SecureMessageService.Web
                 await next();
             });
 
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Headers.ContainsKey("X-Original-Host"))
-                {
-                    var originalHost = context.Request.Headers["X-Original-Host"];
-                    logger.LogInformation($"Retrieving X-Original-Host value {originalHost}");
-                    context.Request.Headers.Add("Host", originalHost);
-                }
-                await next.Invoke();
-            });
-
-            if (env.IsDevelopment())
-            {
-                logger.LogInformation($"App is running in development mode: {env.EnvironmentName}");
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                logger.LogInformation($"App is running in production mode: {env.EnvironmentName}");
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
             app.UsePathBase("/messages");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Response.Headers.ContainsKey("X-Frame-Options"))
+                {
+                    context.Response.Headers.Remove("X-Frame-Options");
+                }
+
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+
+                await next();
+
+                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+                {
+                    //Re-execute the request so the user gets the error page
+                    var originalPath = context.Request.Path.Value;
+                    context.Items["originalPath"] = originalPath;
+                    context.Request.Path = "/error/404";
+                    await next();
+                }
+            });
+
             app.UseAuthentication();
             app.UseHealthChecks("/health");
 

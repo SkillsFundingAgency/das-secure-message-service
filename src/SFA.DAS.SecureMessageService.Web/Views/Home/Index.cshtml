@@ -1,7 +1,7 @@
-﻿@{
+@{
     ViewData["Title"] = "Home";
     @model IndexViewModel;
-    @using SFA.DAS.SecureMessageService.Core.Entities
+    @using SFA.DAS.SecureMessageService.Core.Configuration;
 }
 
 <div class="govuk-grid-row">
@@ -17,7 +17,7 @@
                 @Html.Label("Message",null, new { @class = "govuk-visually-hidden"} )
                 @Html.TextAreaFor(m => m.Message, new { @class="govuk-textarea", @rows="10", @cols="50", @autofocus="true", required="true", autocomplete="off" })
                 @Html.DropDownListFor(m => m.Ttl,
-                                            new SelectList(Constants.TtlValues,"Key","Value"),
+                                            new SelectList(ApplicationConstants.TtlValues,"Key","Value"),
                                             new { @class = "govuk-select" })
 
                 <button type="submit" id="submit" class="govuk-button">
