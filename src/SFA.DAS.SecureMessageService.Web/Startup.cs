@@ -6,11 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.HttpOverrides;
-using SFA.DAS.ToolService.Authentication.ServiceCollectionExtensions;
-using SFA.DAS.ToolService.Authentication.Entities;
-using SFA.DAS.SecureMessageService.Infrastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Threading.Tasks;
 using System;
 using System.IO;
 using Microsoft.IdentityModel.Logging;
@@ -66,6 +61,8 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
+
+            services.AddAuthentication(_configuration);
             services.AddHealthChecks();
 
             services.AddMvc()

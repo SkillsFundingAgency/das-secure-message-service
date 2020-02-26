@@ -1,7 +1,6 @@
 using System;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.SecureMessageService.Core.Entities;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
