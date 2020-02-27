@@ -20,10 +20,14 @@ jobs:
       runOnce:
         deploy:
           steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: manifests
+              path: $(system.defaultworkingdirectory)/manifests
           - task: replacetokens@3
             displayName: 'Tokenize Manifests'
             inputs:
-              rootDirectory: $(Pipeline.Workspace)/manifests/manifests
+              rootDirectory: $(Pipeline.Workspace)/manifests
               targetFiles: '*.yml'
               encoding: 'auto'
               writeBOM: true
@@ -43,4 +47,4 @@ jobs:
               useClusterAdmin: true
               command: apply
               useConfigurationFile: true
-              configuration: $(Pipeline.Workspace)/manifests/manifests/deployment.yml
+              configuration: $(Pipeline.Workspace)/manifests/deployment.yml
