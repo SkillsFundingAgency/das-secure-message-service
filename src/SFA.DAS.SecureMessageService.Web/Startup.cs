@@ -58,6 +58,8 @@ namespace SFA.DAS.SecureMessageService.Web
             services.AddAuthentication(_configuration);
             services.AddHealthChecks();
 
+            services.AddRouting(options => options.LowercaseUrls = true);
+
             services.AddMvc(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
