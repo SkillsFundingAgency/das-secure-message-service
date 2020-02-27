@@ -78,6 +78,9 @@ stages:
       - publish: $(system.defaultworkingdirectory)/publish
         artifact: publish
 
+      - publish: $(system.defaultworkingdirectory)/manifests
+        artifact: manifests
+
 - stage: build_images
   dependsOn: build
   condition: succeeded()

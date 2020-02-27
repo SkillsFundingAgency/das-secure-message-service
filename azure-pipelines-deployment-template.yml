@@ -23,7 +23,7 @@ jobs:
           - task: replacetokens@3
             displayName: 'Tokenize Manifests'
             inputs:
-              rootDirectory: $(Pipeline.Workspace)/artifact/manifests
+              rootDirectory: $(Pipeline.Workspace)/manifests/manifests
               targetFiles: '*.yml'
               encoding: 'auto'
               writeBOM: true
@@ -43,4 +43,4 @@ jobs:
               useClusterAdmin: true
               command: apply
               useConfigurationFile: true
-              configuration: $(Pipeline.Workspace)/artifact/manifests/deployment.yml
+              configuration: $(Pipeline.Workspace)/manifests/manifests/deployment.yml
