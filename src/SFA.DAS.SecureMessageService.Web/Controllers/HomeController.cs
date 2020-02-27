@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +9,6 @@ using SFA.DAS.SecureMessageService.Web.Models;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger logger;

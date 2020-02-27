@@ -10,6 +10,8 @@ using System;
 using System.IO;
 using Microsoft.IdentityModel.Logging;
 using SFA.DAS.SecureMessageService.Web.AppStart;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -44,14 +46,6 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
-                    ForwardedHeaders.XForwardedProto;
-                options.KnownNetworks.Clear();
-                options.KnownProxies.Clear();
-            });
-
             services.AddServices(_configuration);
 
             services.AddOptions();
@@ -61,11 +55,16 @@ namespace SFA.DAS.SecureMessageService.Web
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
-
             services.AddAuthentication(_configuration);
             services.AddHealthChecks();
 
-            services.AddMvc()
+            services.AddMvc(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            })
             .AddControllersAsServices()
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
