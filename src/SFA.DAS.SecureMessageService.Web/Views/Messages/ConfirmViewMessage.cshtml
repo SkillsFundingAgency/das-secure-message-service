@@ -1,25 +1,30 @@
-﻿@{
+@{
     ViewData["Title"] = "Your message";
+    @using SFA.DAS.SecureMessageService.Web.Extensions;
+    @using SFA.DAS.SecureMessageService.Web.Controllers;
+
 }
 
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Your message</h1>
 
-            @if (@ViewBag.MessageExists)
-            {
-                <p class="govuk-body">Click <strong>reveal</strong> to view your message.</p>
+        @if (@ViewBag.MessageExists)
+        {
+            <p class="govuk-body">Click <strong>reveal</strong> to view your message.</p>
 
-                <form method="POST">
-                    <button type="submit" id="submit" class="govuk-button">
-                        Reveal
-                    </button>
-                </form>      
-            }
-            else
-            {
-                <p class="govuk-body">This is not the message you're looking for...</p>
-                <p class="govuk-body"><a href="@Url.Content("/")" class="govuk-link">Click here to create a new message</a></p>
-            } 
+            <form method="POST">
+                <button type="submit" id="submit" class="govuk-button">
+                    Reveal
+                </button>
+            </form>
+        }
+        else
+        {
+            <p class="govuk-body">This is not the message you're looking for...</p>
+            <p class="govuk-body">
+                <a asp-controller="@typeof(HomeController).GetControllerName()" asp-action="@nameof(HomeController.Index)" class="govuk-link">Click here to return to the start.</a>
+            </p>
+        }
     </div>
 </div>

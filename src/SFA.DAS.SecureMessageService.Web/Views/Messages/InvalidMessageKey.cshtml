@@ -1,5 +1,7 @@
-﻿@{
+@{
     ViewData["Title"] = "Share your message";
+    @using SFA.DAS.SecureMessageService.Web.Extensions;
+    @using SFA.DAS.SecureMessageService.Web.Controllers;
     @model ShowMessageUrlViewModel;
 }
 
@@ -7,6 +9,8 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Invalid Message Identifier</h1>
         <p class="govuk-body">The message identifier provided was not valid.</p>
-        <p class="govuk-body"><a href="@Url.Content("/")" class="govuk-link">Click here to create a new message</a></p>   
+        <p class="govuk-body">
+            <a asp-controller="@typeof(HomeController).GetControllerName()" asp-action="@nameof(HomeController.Index)" class="govuk-link">Click here to return to the start.</a>
+        </p>
     </div>
 </div>
