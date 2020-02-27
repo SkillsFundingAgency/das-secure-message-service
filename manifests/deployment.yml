@@ -7,9 +7,6 @@ metadata:
     service: das-tool-service
   name: das-secure-message-service-web
   namespace: {{Namespace}}
-  resourceVersion: "1063256"
-  selfLink: /api/v1/namespaces/engineering/services/das-secure-message-service-web
-  uid: 5392dc1a-c2b5-4ca7-8522-1e8c320aab39
 spec:
   ports:
   - port: 80
