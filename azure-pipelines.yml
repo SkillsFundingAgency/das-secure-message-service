@@ -171,7 +171,9 @@ stages:
 
 - stage: deploy_dev
   displayName: Deploy Dev Environment
-  dependsOn: build_images
+  dependsOn:
+    - build
+    - build_images
   condition: succeeded('build_images')
   jobs:
   - template: azure-pipelines-deployment-template.yml
@@ -184,7 +186,9 @@ stages:
 
 - stage: deploy_prod
   displayName: Deploy Prod Environment
-  dependsOn: deploy_dev
+  dependsOn:
+    - build
+    - deploy_dev
   condition: and(succeeded('deploy_dev'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - template: azure-pipelines-deployment-template.yml
