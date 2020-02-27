@@ -129,8 +129,10 @@ stages:
     pool:
       name: "DAS - Continuous Integration"
     steps:
-      - download: current
-        artifact: src
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: publish
+          path: $(system.defaultworkingdirectory)/publish
 
       - task: Docker@2
         displayName: Build Api Image

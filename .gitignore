@@ -43,4 +43,5 @@ lcov.json
 
 *.jar
 manifests-dev
+publish
 
