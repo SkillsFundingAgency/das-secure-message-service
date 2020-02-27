@@ -13,7 +13,7 @@ trigger:
 pr: none
 
 variables:
-    buildConfiguration: "release"
+  - group: 'Dev Management Resources'
 
 pool:
     name: "DAS - Continuous Integration"
@@ -45,14 +45,14 @@ stages:
         inputs:
             command: build
             projects: "src/**/*.csproj"
-            arguments: '--configuration $(buildConfiguration) -p:Version=$(Build.BuildNumber)"'
+            arguments: '--configuration release -p:Version=$(Build.BuildNumber)"'
 
       - task: DotNetCoreCLI@2
         displayName: Test
         inputs:
             command: test
             projects: "**/*.UnitTests.csproj"
-            arguments: "--configuration $(buildConfiguration) --no-build"
+            arguments: "--configuration release --no-build"
         enabled: false
 
       - task: DotNetCoreCLI@2
@@ -63,7 +63,7 @@ stages:
             modifyOutputPath: false
             zipAfterPublish: false
             projects: "src/SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj"
-            arguments: "--configuration $(buildConfiguration) --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Web --no-restore --no-build"
+            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Web --no-restore --no-build"
 
       - task: DotNetCoreCLI@2
         displayName: "Publish API"
@@ -73,7 +73,7 @@ stages:
             modifyOutputPath: false
             zipAfterPublish: false
             projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
-            arguments: "--configuration $(buildConfiguration) --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Api --no-restore --no-build"
+            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Api --no-restore --no-build"
 
       - publish: $(system.defaultworkingdirectory)/publish
         artifact: publish
