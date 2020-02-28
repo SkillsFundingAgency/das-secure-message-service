@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -22,15 +22,16 @@
                 <a href="/" class="govuk-header__link govuk-header__link--service-name">
                     Tool Service
                 </a>
-                <span id="navigation" class="govuk-header__navigation das-float-right" aria-hidden="true">
-                    @if (User.Identity.IsAuthenticated & (Context.Request.Path != "/"))
-                    {
-                        <a class="govuk-header__link" href="@Url.Content("/account/logout")">
-                            Logout
-                        </a>
-                    }
-                </span>
             </div>
+            <span id="navigation" class="govuk-header__navigation das-float-right" aria-hidden="true">
+
+                @if (User.Identity.IsAuthenticated & (Context.Request.Path != "/"))
+                {
+                    <a class="govuk-header__link" href="@Url.Content("/account/logout")">
+                        Logout
+                    </a>
+                }
+            </span>
         </div>
     </header>
     <div class="govuk-width-container">
