@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics.CodeAnalysis;
+using NLog.Web;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -15,6 +16,7 @@ namespace SFA.DAS.SecureMessageService.Api
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseApplicationInsights()
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseNLog();
     }
 }

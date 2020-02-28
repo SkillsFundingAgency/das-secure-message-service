@@ -4,50 +4,100 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using SFA.DAS.SecureMessageService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.SecureMessageService.Api.Configuration;
+using System.IO;
+using System;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
+using SFA.DAS.SecureMessageService.Api.AppStart;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
     [ExcludeFromCodeCoverage]
     public class Startup
     {
-        private readonly IHostingEnvironment _env;
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
-        {
-            _env = env;
-            Configuration = configuration;
-        }
+        private readonly IConfiguration _configuration;
+        private readonly IHostingEnvironment _environment;
 
-        public IConfiguration Configuration { get; }
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        {
+            _environment = environment;
+            var config = new ConfigurationBuilder()
+                .AddConfiguration(configuration)
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true)
+                .AddJsonFile("appsettings.Development.json", true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            _configuration = config;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
-        services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
-                .AddJwtBearer(auth =>
-                {
-                    auth.Authority =
-                        $"https://login.microsoftonline.com/{Configuration["AzureAdTenant"]}";
-                    auth.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidAudiences = new List<string>
-                        {
-                            Configuration["AzureADResourceId"],
-                            Configuration["AzureADClientId"]
-                        }
-                    };
-                });
+            services.AddServices(_configuration);
 
-            services.AddApplicationInsightsTelemetry();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            if (!_environment.IsDevelopment())
+            {
+                services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+                    .AddJwtBearer(auth =>
+                    {
+                        auth.Authority =
+                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenant"]}";
+                        auth.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidAudiences = new List<string>
+                            {
+                            _configuration["AzureADResourceId"],
+                            _configuration["AzureADClientId"]
+                            }
+                        };
+                    });
+            }
+
+            services.AddApplicationInsightsTelemetry(_configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+
+            if (!ConfigurationIsLocalOrDev())
+            {
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("default", policy => { policy.RequireAuthenticatedUser(); });
+                });
+                services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+                    .AddJwtBearer(auth =>
+                    {
+                        auth.Authority =
+                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenant"]}";
+                        auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                        {
+                            ValidAudiences = new List<string>
+                            {
+                            _configuration["AzureADResourceId"],
+                            _configuration["AzureADClientId"]
+                            }
+                        };
+                    });
+                services.AddSingleton<IClaimsTransformation, AzureAdScopeClaimTransformation>();
+            }
+
+            services.AddMvc(options =>
+            {
+                if (!ConfigurationIsLocalOrDev())
+                {
+                    options.Filters.Add(new AuthorizeFilter("default"));
+                }
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DAS Secure Message Service API", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = ApiConstants.ApiName, Version = "v1" });
                     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
                         In = ParameterLocation.Header,
                         Name = "Authorization"
@@ -68,19 +118,24 @@ namespace SFA.DAS.SecureMessageService.Api
                 app.UseHsts();
             }
 
-            app.UsePathBase("/api/messages");
-
-            // Enable app insights logging
+            app.UsePathBase(ApiConstants.PathBase);
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/api/messages/swagger/v1/swagger.json", "DAS Secure Message Service API");
+                    c.SwaggerEndpoint($"{ApiConstants.PathBase}/swagger/v1/swagger.json", ApiConstants.ApiName);
                 });
 
             app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private bool ConfigurationIsLocalOrDev()
+        {
+            return _configuration["Environment"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase) ||
+                   _configuration["Environment"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) ||
+                   _environment.IsDevelopment();
         }
     }
 }

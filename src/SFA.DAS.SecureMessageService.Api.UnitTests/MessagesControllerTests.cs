@@ -22,10 +22,11 @@ namespace SFA.DAS.SecureMessageService.Api.UnitTests
         protected string testHostname = "localhost";
         protected string testKey = "36ae5a4a-068c-450a-9edf-f5f56d74f13e";
         protected string testMessage = "test message";
-        protected int testTtl = 1;
+        protected string testTtl = "Hour";
 
         [SetUp]
         public void Setup()
+
         {
             logger = new Mock<ILogger<MessagesController>>();
             messageService = new Mock<IMessageService>();
@@ -40,11 +41,10 @@ namespace SFA.DAS.SecureMessageService.Api.UnitTests
             //Arrange
             var request = new SecureMessageRequestDto
             {
-                SecureMessage = testMessage,
-                TtlInHours = testTtl
+                Message = testMessage,
+                Ttl = testTtl
             };
             messageService.Setup(e => e.Create(testMessage, testTtl)).ReturnsAsync(testKey);
-
 
             //Act
             var result = await controller.CreateSecureMessageUrl(request);
