@@ -61,7 +61,7 @@ spec:
         - name: RedisConnectionString
           value: {{RedisConnectionString}}
 
-        image: apprenticeshipsdevops/das-secure-message-service:{{buildNumber}}
+        image: {{image}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:
