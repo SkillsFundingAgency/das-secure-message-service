@@ -20,6 +20,7 @@ jobs:
       runOnce:
         deploy:
           steps:
+          - script: env
           - task: DownloadPipelineArtifact@2
             inputs:
               artifact: manifests
