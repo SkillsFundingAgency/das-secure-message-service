@@ -55,9 +55,9 @@ spec:
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
           value: TBA
         - name: Cdn__Url
-          value: https://das-at-frnt-end.azureedge.net
+          value: {{CdnUrl}}
         - name: BaseUrl
-          value: tools.apprenticeships.education.gov.uk
+          value: {{IngressHost}}
         - name: RedisConnectionString
           value: {{RedisConnectionString}}
 

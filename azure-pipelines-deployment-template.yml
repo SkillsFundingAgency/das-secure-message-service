@@ -11,6 +11,7 @@ jobs:
     environment: ${{parameters.environment}}
 
     variables:
+      - buildNumber: $(Build.BuildNumber)
       - group: ${{parameters.variablegroupName}}
 
     pool:
