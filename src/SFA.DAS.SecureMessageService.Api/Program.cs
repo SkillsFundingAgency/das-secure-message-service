@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using System.Diagnostics.CodeAnalysis;
 using NLog.Web;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.SecureMessageService.Api
 {

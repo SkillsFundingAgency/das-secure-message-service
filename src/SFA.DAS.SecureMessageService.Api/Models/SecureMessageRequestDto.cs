@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.SecureMessageService.Api.Models
@@ -9,6 +8,7 @@ namespace SFA.DAS.SecureMessageService.Api.Models
     {
         [JsonProperty("message")]
         public string Message { get; set; }
+
         [JsonProperty("ttl")]
         public string Ttl { get; set; }
     }
@@ -19,5 +19,3 @@ namespace SFA.DAS.SecureMessageService.Api.Models
         Day = 24
     }
 }
-
-

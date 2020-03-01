@@ -1,12 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.SecureMessageService.Core.IServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Api.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using System.Web.Http;
+using SFA.DAS.SecureMessageService.Core.IServices;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Api.Controllers
 {
@@ -43,8 +41,8 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
             _logger.LogInformation(1, $"Saving message: {key}");
 
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
-            return Ok(new CreateSecureMessageResponse {
-
+            return Ok(new CreateSecureMessageResponse
+            {
                 Key = key,
                 Links = new Links
                 {
@@ -57,13 +55,14 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
         [HttpGet("{key}")]
         public async Task<IActionResult> GetSecureMessage([FromRoute]string key)
         {
-            if (String.IsNullOrEmpty(key)){
+            if (String.IsNullOrEmpty(key))
+            {
                 return BadRequest("An identifier must be provided.");
             }
 
-            if (! await _messageService.MessageExists(key))
+            if (!await _messageService.MessageExists(key))
             {
-                return BadRequest("Invalid identifier.");
+                return NotFound($"A message with the key [{key}] does not exist.");
             }
 
             var message = await _messageService.Retrieve(key);

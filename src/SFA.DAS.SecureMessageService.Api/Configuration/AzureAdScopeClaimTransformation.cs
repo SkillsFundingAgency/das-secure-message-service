@@ -11,7 +11,6 @@ namespace SFA.DAS.SecureMessageService.Api.Configuration
     {
         public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
-
             var scopeClaims = principal.FindAll((string)ApiConstants.ScopeClaimType).ToList();
             if (scopeClaims.Count != 1 || !scopeClaims[0].Value.Contains(' '))
             {

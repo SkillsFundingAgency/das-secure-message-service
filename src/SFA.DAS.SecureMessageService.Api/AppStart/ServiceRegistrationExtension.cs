@@ -5,7 +5,6 @@ using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
 
-
 namespace SFA.DAS.SecureMessageService.Api.AppStart
 {
     public static class ServiceRegistrationExtension

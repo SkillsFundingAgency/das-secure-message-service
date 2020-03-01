@@ -1,20 +1,19 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using SFA.DAS.SecureMessageService.Api.AppStart;
+using SFA.DAS.SecureMessageService.Api.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using SFA.DAS.SecureMessageService.Api.Configuration;
 using System.IO;
-using System;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Authentication;
-using SFA.DAS.SecureMessageService.Api.AppStart;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -41,7 +40,6 @@ namespace SFA.DAS.SecureMessageService.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddServices(_configuration);
 
             if (!_environment.IsDevelopment())
@@ -87,6 +85,8 @@ namespace SFA.DAS.SecureMessageService.Api
                 services.AddSingleton<IClaimsTransformation, AzureAdScopeClaimTransformation>();
             }
 
+            services.AddDistributedCache(_configuration, _environment);
+
             services.AddMvc(options =>
             {
                 if (!ConfigurationIsLocalOrDev())
@@ -98,7 +98,8 @@ namespace SFA.DAS.SecureMessageService.Api
             services.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = ApiConstants.ApiName, Version = "v1" });
-                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
                         In = ParameterLocation.Header,
                         Name = "Authorization"
                     });
