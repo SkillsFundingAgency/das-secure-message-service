@@ -1,9 +1,9 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
@@ -23,7 +23,7 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         {
             // Check for message in cache
             var messageExists = await messageService.MessageExists(key);
-            if(!messageExists)
+            if (!messageExists)
             {
                 logger.LogError($"Message with key {key} does not exist");
                 return View("InvalidMessageKey");

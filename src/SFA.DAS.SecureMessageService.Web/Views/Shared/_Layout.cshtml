@@ -36,7 +36,8 @@
     </header>
     <div class="govuk-width-container">
         <div class="govuk-phase-banner">
-            <p class="govuk-phase-banner__content"><strong class="govuk-tag govuk-phase-banner__content__tag">
+            <p class="govuk-phase-banner__content">
+                <strong class="govuk-tag govuk-phase-banner__content__tag">
                     preview
                 </strong>
                 <span class="govuk-phase-banner__text">
@@ -48,13 +49,12 @@
         <main class="govuk-main-wrapper " id="main-content" role="main">
 
             @RenderBody()
-
         </main>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" no-cdn src="@Url.Content("~/js/validation.js")"> </script>
-    <script type="text/javascript" no-cdn src="@Url.Content("~/js/clipboard.min.js")"> </script>
+    <script type="text/javascript" no-cdn src="@Url.Content("~/js/validation.js")"></script>
+    <script type="text/javascript" no-cdn src="@Url.Content("~/js/clipboard.min.js")"></script>
     <script type="text/javascript" no-cdn src="@Url.Content("~/js/clipboard_button.js")"></script>
-    </body>
+</body>
 </html>

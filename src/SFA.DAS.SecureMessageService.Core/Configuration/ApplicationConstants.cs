@@ -1,12 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.SecureMessageService.Core.Configuration
 {
     public static class ApplicationConstants
     {
         public const string ApplicationName = "das-tools-service";
+
         public static Dictionary<int, string> TtlValues
         {
             get => new Dictionary<int, string>()

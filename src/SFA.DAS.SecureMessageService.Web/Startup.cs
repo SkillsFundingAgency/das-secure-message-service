@@ -1,17 +1,17 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.HttpOverrides;
-using System;
-using System.IO;
 using Microsoft.IdentityModel.Logging;
 using SFA.DAS.SecureMessageService.Web.AppStart;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
+using System;
+using System.IO;
 
 namespace SFA.DAS.SecureMessageService.Web
 {
@@ -37,7 +37,6 @@ namespace SFA.DAS.SecureMessageService.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             IdentityModelEventSource.ShowPII = false;
             services.Configure<CookiePolicyOptions>(options =>
             {

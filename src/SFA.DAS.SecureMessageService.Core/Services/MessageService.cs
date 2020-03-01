@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using SFA.DAS.SecureMessageService.Core.IServices;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Core.Services
 {

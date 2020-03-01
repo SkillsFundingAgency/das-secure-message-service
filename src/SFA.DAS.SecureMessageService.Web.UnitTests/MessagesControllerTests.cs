@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Controllers;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.UnitTests
 {
@@ -45,7 +40,6 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             };
             controller = new MessagesController(messageService.Object, logger.Object);
             controller.ControllerContext = controllerContext;
-
         }
 
         [Test]

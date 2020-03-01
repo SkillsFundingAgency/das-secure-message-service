@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.Extensions
 {
     public static class Extensions
     {
-
         public static string GetDescription(this Enum GenericEnum)
         {
             Type genericEnumType = GenericEnum.GetType();

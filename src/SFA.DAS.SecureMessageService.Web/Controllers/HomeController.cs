@@ -1,11 +1,10 @@
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {

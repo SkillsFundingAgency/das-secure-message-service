@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
 {
@@ -17,7 +17,7 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
         {
             await _cache.SetStringAsync(key, message, distributedCacheEntryOptions);
         }
-        
+
         public async Task<string> GetStringAsync(string key)
         {
             var value = await _cache.GetStringAsync(key);
