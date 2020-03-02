@@ -84,7 +84,7 @@ namespace SFA.DAS.SecureMessageService.Api.UnitTests
         }
 
         [Test]
-        public async Task SuccesfullyRetrieveSecretByKey()
+        public async Task SuccessfullyRetrieveSecretByKey()
         {
             //Arrange
             _messageService.Setup(e => e.MessageExists(_testKey)).ReturnsAsync(true);
@@ -107,6 +107,36 @@ namespace SFA.DAS.SecureMessageService.Api.UnitTests
             Assert.IsInstanceOf<GetSecureMessageResponse>(actualResult.Value);
             var secureMessageResponse = actualResult.Value as GetSecureMessageResponse;
             Assert.AreEqual(getSecureMessageResponse.Message, secureMessageResponse.Message);
+        }
+
+        [Test]
+        public async Task SuccessfullyTestThatASecretExists()
+        {
+            //Arrange
+            _messageService.Setup(e => e.MessageExists(_testKey)).ReturnsAsync(true);
+
+            //Act
+            var result = await _controller.TestSecureMessage(_testKey);
+            var actualResult = result as OkResult;
+
+            //Assert
+            _messageService.VerifyAll();
+            Assert.AreEqual(HttpStatusCode.OK, (HttpStatusCode)actualResult.StatusCode);
+        }
+
+        [Test]
+        public async Task SuccessfullyTestThatASecretDoesNotExist()
+        {
+            //Arrange
+            _messageService.Setup(e => e.MessageExists(_testKey)).ReturnsAsync(false);
+
+            //Act
+            var result = await _controller.TestSecureMessage(_testKey);
+            var actualResult = result as NotFoundResult;
+
+            //Assert
+            _messageService.VerifyAll();
+            Assert.AreEqual(HttpStatusCode.NotFound, (HttpStatusCode)actualResult.StatusCode);
         }
     }
 }

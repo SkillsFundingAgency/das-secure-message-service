@@ -71,5 +71,11 @@ namespace SFA.DAS.SecureMessageService.Api.Controllers
                 Message = message
             });
         }
+
+        [HttpHead("{key}")]
+        public async Task<IActionResult> TestSecureMessage([FromRoute]string key)
+        {
+            return await _messageService.MessageExists(key) ? (IActionResult)this.Ok() : this.NotFound();
+        }
     }
 }
