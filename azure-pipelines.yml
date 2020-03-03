@@ -7,7 +7,6 @@ trigger:
     include:
       - manifests/*
       - src/*
-      - azure-pipelines-deployment-template.yml
       - azure-pipelines.yml
       - Dockerfile
 
@@ -79,8 +78,18 @@ stages:
       - publish: $(system.defaultworkingdirectory)/publish
         artifact: publish
 
-      - publish: $(system.defaultworkingdirectory)/manifests
-        artifact: manifests
+      - task: CopyFiles@2
+        displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+        inputs:
+          contents: |
+            azure/**
+            manifests/**
+          targetFolder: '$(build.artifactstagingdirectory)/publish'
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          pathtoPublish: '$(build.artifactstagingdirectory)/publish'
 
 - stage: build_images
   dependsOn: build
@@ -168,33 +177,3 @@ stages:
             command: push
             repository: apprenticeshipsdevops/das-secure-message-service-api
             tags: $(build.BuildNumber)-production
-
-- stage: deploy_dev
-  displayName: Deploy Dev Environment
-  dependsOn:
-    - build
-    - build_images
-  condition: succeeded('build_images')
-  jobs:
-  - template: azure-pipelines-deployment-template.yml
-    parameters:
-      azureSubscription: SFA-DAS-DevTest-ARM
-      aksResourceGroupName: $(AKSResourceGroupName)
-      aksClusterName: $(AKSClusterName)
-      environment: dev
-      variableGroupName: Tools - ENV - DEV
-
-- stage: deploy_prod
-  displayName: Deploy Prod Environment
-  dependsOn:
-    - build
-    - deploy_dev
-  condition: and(succeeded('deploy_dev'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
-  - template: azure-pipelines-deployment-template.yml
-    parameters:
-      azureSubscription: SFA-DAS-DevTest-ARM
-      aksResourceGroupName: $(AKSResourceGroupName)
-      aksClusterName: $(AKSClusterName)
-      environment: prod
-      variableGroupName: Tools - ENV - PROD

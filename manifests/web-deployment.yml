@@ -53,7 +53,7 @@ spec:
         - name: EnvironmentName
           value: {{EnvironmentName}}
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
-          value: TBA
+          value: {{ApiAppInsightsInstrumentationkey}}
         - name: Cdn__Url
           value: {{CdnUrl}}
         - name: BaseUrl
@@ -61,7 +61,7 @@ spec:
         - name: RedisConnectionString
           value: {{RedisConnectionString}}
 
-        image: {{image}}
+        image: {{WebImage}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:

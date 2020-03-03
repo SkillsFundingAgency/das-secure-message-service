@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceEnvironmentName": {
+      "type": "string"
+    },
+    "serviceName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
+    "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+    "WebAppInsightsName": "[concat(variables('resourceNamePrefix'), 'ui-ai')]",
+    "ApiAppInsightsName": "[concat(variables('resourceNamePrefix'), 'api-ai')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-05-10",
+      "name": "web-application-insights",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'),'application-insights.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appInsightsName": {
+            "value": "[variables('WebAppInsightsName')]"
+          },
+          "attachedService": {
+            "value": "[variables('WebAppInsightsName')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "api-application-insights",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'),'application-insights.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appInsightsName": {
+            "value": "[variables('ApiAppInsightsName')]"
+          },
+          "attachedService": {
+            "value": "[variables('ApiAppInsightsName')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "WebAppInsightsInstrumentationkey": {
+      "type": "string",
+      "value": "[reference('web-application-insights').outputs.Instrumentationkey.Value]"
+    },
+    "ApiAppInsightsInstrumentationkey": {
+      "type": "string",
+      "value": "[reference('api-application-insights').outputs.Instrumentationkey.Value]"
+    }
+  }
+}
