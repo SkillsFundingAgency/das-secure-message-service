@@ -134,8 +134,8 @@ namespace SFA.DAS.SecureMessageService.Api
 
         private bool ConfigurationIsLocalOrDev()
         {
-            return _configuration["Environment"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase) ||
-                   _configuration["Environment"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) ||
+            return _configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase) ||
+                   _configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase) ||
                    _environment.IsDevelopment();
         }
     }
