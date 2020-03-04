@@ -10,10 +10,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFA.DAS.SecureMessageService.Api.AppStart;
 using SFA.DAS.SecureMessageService.Api.Configuration;
+using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 
 namespace SFA.DAS.SecureMessageService.Api
 {
@@ -46,14 +48,6 @@ namespace SFA.DAS.SecureMessageService.Api
 
             if (!ConfigurationIsLocalOrDev())
             {
-                services.AddAuthorization(options =>
-                {
-                    options.AddPolicy("RequireMessageRole", policy =>
-                    {
-                        policy.RequireRole("Messages");
-                    });
-                });
-
                 services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
                     .AddJwtBearer(auth =>
                     {
@@ -68,6 +62,17 @@ namespace SFA.DAS.SecureMessageService.Api
                             }
                         };
                     });
+
+                services.AddSingleton<IClaimsTransformation, AzureAdScopeClaimTransformation>();
+
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy(ApiConstants.AuthorizationPolicyName, policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireRole(ApiConstants.AuthorizationRequiredRoleName);
+                    });
+                });
             }
 
             services.AddDistributedCache(_configuration, _environment);
@@ -76,7 +81,7 @@ namespace SFA.DAS.SecureMessageService.Api
             {
                 if (!ConfigurationIsLocalOrDev())
                 {
-                    options.Filters.Add(new AuthorizeFilter("RequireMessageRole"));
+                    options.Filters.Add(new AuthorizeFilter(ApiConstants.AuthorizationPolicyName));
                 }
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -86,7 +91,27 @@ namespace SFA.DAS.SecureMessageService.Api
                     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                     {
                         In = ParameterLocation.Header,
-                        Name = "Authorization"
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header,
+                            },
+                            new List<string>()
+                        }
                     });
                 });
         }
