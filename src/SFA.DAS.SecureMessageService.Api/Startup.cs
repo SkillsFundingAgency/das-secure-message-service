@@ -42,24 +42,6 @@ namespace SFA.DAS.SecureMessageService.Api
         {
             services.AddServices(_configuration);
 
-            if (!_environment.IsDevelopment())
-            {
-                services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
-                    .AddJwtBearer(auth =>
-                    {
-                        auth.Authority =
-                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenant"]}";
-                        auth.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidAudiences = new List<string>
-                            {
-                            _configuration["AzureADResourceId"],
-                            _configuration["AzureADClientId"]
-                            }
-                        };
-                    });
-            }
-
             services.AddApplicationInsightsTelemetry(_configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
 
             if (!ConfigurationIsLocalOrDev())
@@ -72,7 +54,7 @@ namespace SFA.DAS.SecureMessageService.Api
                     .AddJwtBearer(auth =>
                     {
                         auth.Authority =
-                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenant"]}";
+                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenantId"]}";
                         auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                         {
                             ValidAudiences = new List<string>
