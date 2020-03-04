@@ -48,8 +48,12 @@ namespace SFA.DAS.SecureMessageService.Api
             {
                 services.AddAuthorization(options =>
                 {
-                    options.AddPolicy("default", policy => { policy.RequireAuthenticatedUser(); });
+                    options.AddPolicy("RequireMessageRole", policy =>
+                    {
+                        policy.RequireRole("Messages");
+                    });
                 });
+
                 services.AddAuthentication(auth => { auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
                     .AddJwtBearer(auth =>
                     {
@@ -64,7 +68,6 @@ namespace SFA.DAS.SecureMessageService.Api
                             }
                         };
                     });
-                services.AddSingleton<IClaimsTransformation, AzureAdScopeClaimTransformation>();
             }
 
             services.AddDistributedCache(_configuration, _environment);
@@ -73,7 +76,7 @@ namespace SFA.DAS.SecureMessageService.Api
             {
                 if (!ConfigurationIsLocalOrDev())
                 {
-                    options.Filters.Add(new AuthorizeFilter("default"));
+                    options.Filters.Add(new AuthorizeFilter("RequireMessageRole"));
                 }
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
