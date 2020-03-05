@@ -1,97 +1,179 @@
-name: "0.1.0-$(Rev:r)"
 trigger:
   batch: true
   branches:
     include:
       - "*"
   paths:
-    exclude:
-      - README.md
-
-pr:
-  branches:
     include:
-      - "*"
+      - manifests/*
+      - src/*
+      - azure-pipelines.yml
+      - Dockerfile
 
-workspace:
-  clean: all
-
-pool:
-  name: "DAS - Continuous Integration"
-  demands:
-    - JAVA_HOME
+pr: none
 
 variables:
-  - group: "ESFA - SonarCloud"
-  - name: buildConfiguration
-    value: "Release"
-  - name: solutionPath
-    value: "$(build.sourcesDirectory)/src/SFA.DAS.SecureMessageService.sln"
-  - name: sonarCloudProjectKey
-    value: "SkillsFundingAgency_das-secure-message-service"
+  - group: 'Dev Management Resources'
 
-steps:
-  - task: SonarCloudPrepare@1
-    displayName: "Prepare Sonar Analyzer"
-    inputs:
-      SonarCloud: "$(SonarCloudConnectionId)"
-      organization: "$(SonarCloudOrganisationKey)"
-      projectName: "$(Build.DefinitionName)"
-      projectKey: "$(sonarCloudProjectKey)"
-      extraProperties: |
-        sonar.pullrequest.provider=GitHub
-        sonar.pullrequest.github.repository=$(Build.Repository.Name)
-        sonar.cs.opencover.reportsPaths=$(System.DefaultWorkingDirectory)/src/**/*.UnitTests/coverage.opencover.xml
+pool:
+    name: "DAS - Continuous Integration"
 
-  - task: DotNetCoreCLI@2
-    displayName: Restore
-    inputs:
-      command: restore
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration)"
-
-  - task: DotNetCoreCLI@2
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+  - job: build_image
     displayName: Build
-    inputs:
-      command: build
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration)"
+    pool:
+      name: "DAS - Continuous Integration"
+    steps:
+      - task: gittools.gitversion-preview.gitversion-task.GitVersion@5
+        displayName: GitVersion
+        inputs:
+          configFilePath: GitVersion.yml
+          updateAssemblyInfo: true
 
-  - task: DotNetCoreCLI@2
-    displayName: Test
-    inputs:
-      command: test
-      projects: "**/*.UnitTests.csproj"
-      arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+      - task: DotNetCoreCLI@2
+        displayName: Restore
+        inputs:
+            command: restore
+            projects: "src/**/*.csproj"
+            noCache: true
 
-  - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
-    displayName: "Run Code Analysis"
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+            command: build
+            projects: "src/**/*.csproj"
+            arguments: '--configuration release -p:Version=$(Build.BuildNumber)"'
 
-  - task: DotNetCoreCLI@2
-    displayName: "Publish"
-    inputs:
-      command: publish
-      publishWebProjects: true
-      projects: $(solutionPath)
-      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
-  
-  - task: DotNetCoreCLI@2
-    displayName: "Publish"
-    inputs:
-      command: publish
-      publishWebProjects: false
-      projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
-      arguments: "--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish"
+      - task: DotNetCoreCLI@2
+        displayName: Test
+        inputs:
+            command: test
+            projects: "**/*.UnitTests.csproj"
+            arguments: "--configuration release --no-build"
+        enabled: false
 
-  - task: CopyFiles@2
-    displayName: "Copy Files to: $(build.artifactstagingdirectory)"
-    inputs:
-      Contents: |
-        azure/**
-      TargetFolder: "$(build.artifactstagingdirectory)/publish"
-      OverWrite: true
+      - task: DotNetCoreCLI@2
+        displayName: "Publish Website"
+        inputs:
+            command: publish
+            publishWebProjects: false
+            modifyOutputPath: false
+            zipAfterPublish: false
+            projects: "src/SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj"
+            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Web --no-restore --no-build"
 
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Artifact"
-    inputs:
-      PathtoPublish: "$(build.artifactstagingdirectory)/publish"
+      - task: DotNetCoreCLI@2
+        displayName: "Publish API"
+        inputs:
+            command: publish
+            publishWebProjects: false
+            modifyOutputPath: false
+            zipAfterPublish: false
+            projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
+            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Api --no-restore --no-build"
+
+      - publish: $(system.defaultworkingdirectory)/publish
+        artifact: publish
+
+      - task: CopyFiles@2
+        displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+        inputs:
+          contents: |
+            azure/**
+            manifests/**
+          targetFolder: '$(build.artifactstagingdirectory)/publish'
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          pathtoPublish: '$(build.artifactstagingdirectory)/publish'
+
+- stage: build_images
+  dependsOn: build
+  condition: succeeded()
+  displayName: Build Images
+  jobs:
+  - job: build_web_image
+    displayName: Build Web Image
+    pool:
+      name: "DAS - Continuous Integration"
+    steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: publish
+          path: $(system.defaultworkingdirectory)/publish
+
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+            command: login
+            containerRegistry: "Apprenticeships DevOps Docker Hub"
+
+      - task: Docker@2
+        displayName: Build Web Image
+        inputs:
+            command: build
+            dockerfile: Web.Dockerfile
+            repository: apprenticeshipsdevops/das-secure-message-service
+            tags: |
+                $(Build.BuildNumber)
+                $(build.BuildNumber)-production
+
+      - task: Docker@2
+        displayName: Push Web Image
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service
+            tags: $(Build.BuildNumber)
+
+      - task: Docker@2
+        displayName: Push Web Image Latest if master
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service
+            tags: $(build.BuildNumber)-production
+
+  - job: build_api_image
+    displayName: Build Api Image
+    pool:
+      name: "DAS - Continuous Integration"
+    steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: publish
+          path: $(system.defaultworkingdirectory)/publish
+
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+            command: login
+            containerRegistry: "Apprenticeships DevOps Docker Hub"
+
+      - task: Docker@2
+        displayName: Build Api Image
+        inputs:
+            command: build
+            dockerfile: Api.Dockerfile
+            repository: apprenticeshipsdevops/das-secure-message-service-api
+            tags: |
+                $(Build.BuildNumber)
+                $(build.BuildNumber)-production
+
+      - task: Docker@2
+        displayName: Push Api Image
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service-api
+            tags: $(Build.BuildNumber)
+
+      - task: Docker@2
+        displayName: Push Api Image Latest if master
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service-api
+            tags: $(build.BuildNumber)-production

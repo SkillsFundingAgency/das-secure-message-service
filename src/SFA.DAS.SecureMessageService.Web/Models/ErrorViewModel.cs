@@ -1,5 +1,3 @@
-using System;
-
 namespace SFA.DAS.SecureMessageService.Web.Models
 {
     public class ErrorViewModel

@@ -1,5 +1,3 @@
-using System;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 
 namespace SFA.DAS.SecureMessageService.Web.Models
@@ -14,6 +12,7 @@ namespace SFA.DAS.SecureMessageService.Web.Models
             { 24, "Day" }
         };
         }
+
         public string Message { get; set; }
         public int Ttl { get; set; }
         public Dictionary<int, string> TtlValues { get; set; }

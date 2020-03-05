@@ -1,336 +1,70 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "appServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service."
-            }
-        },
-        "apiAppServiceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the api app service."
-            }
-        },
-        "appServicePlanName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the app service plan."
-            }
-        },
-        "redisCacheName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the redis cache."
-            }
-        },
-        "redisConnectionString": {
-            "type": "string",
-            "metadata": {
-                "description": "Connection string for the redis cache."
-            }
-        },
-        "azureADTenant": {
-            "type": "string",
-            "metadata": {
-                "description": "Azure Tenant the API lives in"
-            }
-        },
-        "azureADClientId": {
-            "type": "string",
-            "metadata": {
-                "description": "Client Id of the app registration"
-            }
-        },
-        "azureADResourceId": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource Identifier of the app registration"
-            }
-        },
-        "cdnUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "The url of the cdn used to serve static content."
-            }
-        },
-        "customHostName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "An optional custom hostname to use as a frontend endpoint."
-            }
-        },
-        "keyVaultName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The name of the keyvault that hosts certificates."
-            }
-        },
-        "keyVaultResourceGroup": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The name of the resource group that holds the keyvault resource."
-            }
-        },
-        "keyVaultCertificateName": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The name of the key vault certificate to use."
-            }
-        },
-        "applicationPathBase": {
-            "type": "string",
-            "metadata": {
-                "description": "The base path appended to the host. For use when behind a reverse proxy. https//proxy.com/myapp/xxxx"
-            }
-        },
-        "aspnetCoreEnvironment": {
-            "type": "string",
-            "defaultValue": "Production",
-            "metadata": {
-                "description": "Value for ASPNETCORE_ENVIRONMENT that will determine how the app runs"
-            }
-        },
-        "ipSecurityRestrictions": {
-            "type": "array",
-            "metadata": {
-                "description": "An array of ip restrictions: https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions#programmatic-manipulation-of-ip-restriction-rules"
-            }
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceEnvironmentName": {
+      "type": "string"
     },
-    "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
-        "appServicePlanTier": "Standard",
-        "appServicePlanSize": "1",
-        "appServicePlanInstances": 1,
-        "redisCacheSKU": "Basic",
-        "redisCacheFamily": "C",
-        "redisCacheCapacity": 0
-    },
-    "resources": [
-        {
-            "condition": "[greater(length(parameters('customHostName')), 0)]",
-            "apiVersion": "2017-05-10",
-            "name": "app-service-certificate",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-certificate.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "keyVaultCertificateName": {
-                        "value": "[parameters('keyVaultCertificateName')]"
-                    },
-                    "keyVaultName": {
-                        "value": "[parameters('keyVaultName')]"
-                    },
-                    "keyVaultResourceGroup": {
-                        "value": "[parameters('keyVaultResourceGroup')]"
-                    }
-                }
-            }
+    "serviceName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
+    "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+    "WebAppInsightsName": "[concat(variables('resourceNamePrefix'), 'ui-ai')]",
+    "ApiAppInsightsName": "[concat(variables('resourceNamePrefix'), 'api-ai')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-05-10",
+      "name": "web-application-insights",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'),'application-insights.json')]",
+          "contentVersion": "1.0.0.0"
         },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-service-plan",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service-plan.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "nonASETier": {
-                        "value": "[variables('appServicePlanTier')]"
-                    },
-                    "aspSize": {
-                        "value": "[variables('appServicePlanSize')]"
-                    },
-                    "aspInstances": {
-                        "value": "[variables('appServicePlanInstances')]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-service",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServiceName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "appServicePlanResourceGroup": {
-                        "value": "[resourceGroup().name]"
-                    },
-                    "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "RedisConnectionString",
-                                "value": "[parameters('redisConnectionString')]"
-                            },
-                            {
-                                "name": "cdn:url",
-                                "value": "[parameters('cdnUrl')]"
-                            },
-                            {
-                                "name": "ApplicationPathBase",
-                                "value": "[parameters('applicationPathBase')]"
-                            },
-                            {
-                                "name": "ASPNETCORE_ENVIRONMENT",
-                                "value": "[parameters('aspnetCoreEnvironment')]"
-                            }
-                        ]
-                    },
-                    "customHostName": {
-                        "value": "[parameters('customHostName')]"
-                    },
-                    "certificateThumbprint": {
-                        "value": "[if(greater(length(parameters('customHostname')), 0), reference('app-service-certificate', '2018-11-01').outputs.certificateThumbprint.value, '')]"
-                    },
-                    "ipSecurityRestrictions": {
-                        "value": "[parameters('ipSecurityRestrictions')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "app-service-plan",
-                "app-service-certificate"
-            ]
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "redis-cache",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'redis.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "redisCacheName": {
-                        "value": "[parameters('redisCacheName')]"
-                    },
-                    "redisCacheSKU": {
-                        "value": "[variables('redisCacheSKU')]"
-                    },
-                    "redisCacheFamily": {
-                        "value": "[variables('redisCacheFamily')]"
-                    },
-                    "redisCacheCapacity": {
-                        "value": "[variables('redisCacheCapacity')]"
-                    },
-                    "enableNonSslPort": {
-                        "value": false
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "app-insights",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'application-insights.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appInsightsName": {
-                        "value": "[parameters('appServiceName')]"
-                    },
-                    "attachedService": {
-                        "value": "[parameters('appServiceName')]"
-                    }
-                }
-            }
-        },
-        {
-            "apiVersion": "2017-05-10",
-            "name": "api-app-service",
-            "type": "Microsoft.Resources/deployments",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'), 'app-service.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "appServiceName": {
-                        "value": "[parameters('apiAppServiceName')]"
-                    },
-                    "appServicePlanName": {
-                        "value": "[parameters('appServicePlanName')]"
-                    },
-                    "appServicePlanResourceGroup": {
-                        "value": "[resourceGroup().name]"
-                    },
-                    "appServiceAppSettings": {
-                        "value": [
-                            {
-                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                                "value": "[reference('app-insights').outputs.InstrumentationKey.value]"
-                            },
-                            {
-                                "name": "RedisConnectionString",
-                                "value": "[parameters('redisConnectionString')]"
-                            },
-                            {
-                                "name": "ASPNETCORE_ENVIRONMENT",
-                                "value": "[parameters('aspnetCoreEnvironment')]"
-                            },
-                            {
-                                "name": "UIBaseUrl",
-                                "value": "[concat('https://',  if(greater(length(parameters('customHostName')), 0), parameters('customHostName'), concat(parameters('appServiceName'), '.azurewebsites.net')))]"
-                            },
-                            {
-                                "name": "AzureAdTenant",
-                                "value": "[parameters('azureAdTenant')]"
-                            },
-                            {
-                                "name": "AzureADResourceId",
-                                "value": "[parameters('azureADResourceId')]"
-                            },
-                            {
-                                "name": "AzureADClientId",
-                                "value": "[parameters('azureADClientId')]"
-                            }
-                        ]
-                    }
-                }
-            },
-            "dependsOn": [
-                "app-service-plan",
-                "app-service-certificate"
-            ]
+        "parameters": {
+          "appInsightsName": {
+            "value": "[variables('WebAppInsightsName')]"
+          },
+          "attachedService": {
+            "value": "[variables('WebAppInsightsName')]"
+          }
         }
-    ]
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "api-application-insights",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('deploymentUrlBase'),'application-insights.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "appInsightsName": {
+            "value": "[variables('ApiAppInsightsName')]"
+          },
+          "attachedService": {
+            "value": "[variables('ApiAppInsightsName')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "WebAppInsightsInstrumentationkey": {
+      "type": "string",
+      "value": "[reference('web-application-insights').outputs.Instrumentationkey.Value]"
+    },
+    "ApiAppInsightsInstrumentationkey": {
+      "type": "string",
+      "value": "[reference('api-application-insights').outputs.Instrumentationkey.Value]"
+    }
+  }
 }

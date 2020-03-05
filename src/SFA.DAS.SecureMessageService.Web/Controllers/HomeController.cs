@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
@@ -34,12 +31,12 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         {
             if (String.IsNullOrEmpty(indexViewModel.Message))
             {
-                logger.LogError(1, "Message cannot be null");
+                logger.LogError("Message cannot be null");
                 return new BadRequestResult();
             }
 
             var key = await messageService.Create(indexViewModel.Message, indexViewModel.Ttl);
-            logger.LogInformation(1, $"Saving message: {key}");
+            logger.LogInformation($"Saving message: {key}");
 
             return RedirectToAction("ShareMessageUrl", "Messages", new { key = key });
         }

@@ -1,9 +1,5 @@
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using System;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
 {
@@ -21,7 +17,6 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
             try
             {
                 return dataProtector.Protect(message);
-
             }
             catch (Exception e)
             {

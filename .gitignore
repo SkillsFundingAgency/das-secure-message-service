@@ -32,6 +32,7 @@ msbuild.wrn
 .vs/
 
 src/*/appsettings.json
+src/*/appsettings.Development.json
 azure-pipelines.aci.yml
 
 # Test Results
@@ -39,3 +40,8 @@ coverage.json
 coverage.*.xml
 lcov.info
 lcov.json
+
+*.jar
+manifests-dev
+publish
+

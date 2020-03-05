@@ -1,10 +1,10 @@
-using System;
+using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using NUnit.Framework;
-using Microsoft.Extensions.Caching.Distributed;
-using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
-using System.Threading.Tasks;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.UnitTests
 {
@@ -95,5 +95,4 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.UnitTests
             cache.VerifyAll();
         }
     }
-
 }

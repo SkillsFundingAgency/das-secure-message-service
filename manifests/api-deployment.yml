@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: das-secure-message-service-api
+    service: das-tool-service
+  name: das-secure-message-service-api
+  namespace: {{Namespace}}
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: das-secure-message-service-api
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: das-secure-message-service-api
+    service: das-tool-service
+  name: das-secure-message-service-api
+  namespace: {{Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: das-secure-message-service-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: das-secure-message-service-api
+        service: das-tool-service
+    spec:
+      containers:
+      - env:
+        - name: ConfigurationStorageConnectionString
+          value: {{ConfigurationStorageConnectionString}}
+        - name: LoggingRedisConnectionString
+          value: {{LoggingRedisConnectionString}}
+        - name: LoggingRedisKey
+          value: logstash
+        - name: EnvironmentName
+          value: {{EnvironmentName}}
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          value: {{WebAppInsightsInstrumentationkey}}
+        - name: BaseUrl
+          value: {{IngressHost}}
+        - name: RedisConnectionString
+          value: {{RedisConnectionString}}
+        - name: AzureAdTenantId
+          value: {{AzureAdTenantId}}
+        - name: AzureADResourceId
+          value: {{AzureADResourceId}}
+        - name: AzureADClientId
+          value: {{AzureADClientId}}
+
+        image: {{ApiImage}}
+        imagePullPolicy: IfNotPresent
+        name: das-secure-message-service-api
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 25m
+            memory: 512Mi

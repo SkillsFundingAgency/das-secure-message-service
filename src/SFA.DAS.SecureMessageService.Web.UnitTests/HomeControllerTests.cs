@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -9,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Controllers;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.UnitTests
 {
@@ -50,7 +48,6 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
             Assert.AreEqual("Index", actualViewResult.ViewName);
         }
 
-
         [Test]
         public async Task IndexSubmitMessage_SuccessfullyRedirectsOnFormPost()
         {
@@ -76,7 +73,7 @@ namespace SFA.DAS.SecureMessageService.Web.UnitTests
         {
             // Arrange
             indexViewModel.Message = message;
-            
+
             // Act
             var result = await controller.IndexSubmitMessage(indexViewModel);
 

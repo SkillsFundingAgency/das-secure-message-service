@@ -1,11 +1,8 @@
-using System;
 using Moq;
 using NUnit.Framework;
-using Microsoft.Extensions.Caching.Distributed;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
 using SFA.DAS.SecureMessageService.Infrastructure.Repositories;
-using Microsoft.AspNetCore.DataProtection;
-using System.Threading.Tasks;
+using System;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.UnitTests
 {

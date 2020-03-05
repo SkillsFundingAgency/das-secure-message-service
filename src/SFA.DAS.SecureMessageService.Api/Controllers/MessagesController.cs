@@ -1,46 +1,81 @@
-﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.SecureMessageService.Core.IServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Api.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authorization;
+using SFA.DAS.SecureMessageService.Core.IServices;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Api.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Messages")]
+    [Route("")]
     public class MessagesController : ControllerBase
     {
-        private readonly ILogger logger;
-        private readonly IMessageService messageService;
-        private readonly IConfiguration configuration;
+        private readonly ILogger _logger;
+        private readonly IMessageService _messageService;
+        private readonly IConfiguration _configuration;
 
-        public MessagesController(IMessageService _messageService, ILogger<MessagesController> _logger, IConfiguration _configuration)
+        public MessagesController(IMessageService messageService, ILogger<MessagesController> logger, IConfiguration configuration)
         {
-            logger = _logger;
-            messageService = _messageService;
-            configuration = _configuration;
+            _logger = logger;
+            _messageService = messageService;
+            _configuration = configuration;
         }
 
-        [HttpPost]
-        [Route("CreateSecureMessageUrl")]
+        [HttpPost("")]
         public async Task<IActionResult> CreateSecureMessageUrl([FromBody]SecureMessageRequestDto secureMessageRequest)
         {
-            if (String.IsNullOrEmpty(secureMessageRequest.SecureMessage))
+            if (String.IsNullOrEmpty(secureMessageRequest.Message))
             {
-                logger.LogError(1, "Message cannot be null");
-                return new BadRequestResult();
+                return BadRequest("The message parameter cannot be empty.");
             }
 
-            var key = await messageService.Create(secureMessageRequest.SecureMessage, secureMessageRequest.TtlInHours);
-            logger.LogInformation(1, $"Saving message: {key}");
+            if (!Enum.IsDefined(typeof(Ttl), secureMessageRequest.Ttl))
+            {
+                return BadRequest($"Ttl must be one of [{String.Join(",", Enum.GetNames(typeof(Ttl)))}]");
+            }
 
-            var baseUrl = configuration["UIBaseUrl"];
-            baseUrl = baseUrl.TrimEnd('/');
-            var url = $"{baseUrl}/messages/{key}";
-            return Ok(url);
+            var ttl = (int)Enum.Parse(typeof(Ttl), secureMessageRequest.Ttl.ToString());
+            var key = await _messageService.Create(secureMessageRequest.Message, ttl);
+            _logger.LogInformation(1, $"Saving message: {key}");
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            return Ok(new CreateSecureMessageResponse
+            {
+                Key = key,
+                Links = new Links
+                {
+                    Api = $"{baseUrl}{Request.PathBase}/{key}",
+                    Web = $"{baseUrl}/messages/view/{key}"
+                }
+            });
+        }
+
+        [HttpGet("{key}")]
+        public async Task<IActionResult> GetSecureMessage([FromRoute]string key)
+        {
+            if (String.IsNullOrEmpty(key))
+            {
+                return BadRequest("An identifier must be provided.");
+            }
+
+            if (!await _messageService.MessageExists(key))
+            {
+                return NotFound($"A message with the key [{key}] does not exist.");
+            }
+
+            var message = await _messageService.Retrieve(key);
+            return Ok(new GetSecureMessageResponse
+            {
+                Message = message
+            });
+        }
+
+        [HttpHead("{key}")]
+        public async Task<IActionResult> TestSecureMessage([FromRoute]string key)
+        {
+            return await _messageService.MessageExists(key) ? (IActionResult)this.Ok() : this.NotFound();
         }
     }
 }
