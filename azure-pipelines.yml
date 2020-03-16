@@ -63,7 +63,7 @@ stages:
             arguments: "--configuration release --no-build"
         enabled: false
 
-      - template: azure-pipelines-templates/dependency-check.yml@das-platform-building-blocks
+      - template: azure-pipelines-templates/dependency-check.yml@SkillsFundingAgency/das-platform-building-blocks
 
       - task: DotNetCoreCLI@2
         displayName: "Publish Website"
