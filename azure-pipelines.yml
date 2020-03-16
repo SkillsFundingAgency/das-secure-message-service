@@ -24,7 +24,7 @@ resources:
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
     ref: refs/heads/master
-    endpoint: "GitHub (SFA)"
+    endpoint: "SkillsFundingAgency (1)"
 
 stages:
 - stage: build
