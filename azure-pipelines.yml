@@ -38,6 +38,7 @@ stages:
             dockerfile: docker/Build.Dockerfile
             repository: das-secure-message-service-build
             buildContext: .
+            tags: latest
 
       - task: Docker@2
         displayName: Build Web Image

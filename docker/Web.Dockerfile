@@ -1,4 +1,4 @@
-FROM das-secure-message-service-build AS build
+FROM das-secure-message-service-build:latest AS build
 WORKDIR /src
 
 ENV PROJECT_PATH=SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj
