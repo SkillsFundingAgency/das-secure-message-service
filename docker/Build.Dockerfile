@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
 
 ENV PROJECT_PATH=SFA.DAS.SecureMessageService.sln
-COPY ../src ./src
+COPY ./src ./src
 WORKDIR /src
 
 RUN dotnet restore $PROJECT_PATH
