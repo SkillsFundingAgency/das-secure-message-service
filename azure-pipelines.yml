@@ -24,59 +24,61 @@ stages:
   jobs:
   - job: build_image
     displayName: Build
-    pool:
-      name: "DAS - Continuous Integration"
     steps:
-      - task: gittools.gitversion-preview.gitversion-task.GitVersion@5
-        displayName: GitVersion
+      - task: UseGitVersion@5
         inputs:
+          versionSpec: 5.x
+          useConfigFile: true
           configFilePath: GitVersion.yml
-          updateAssemblyInfo: true
 
-      - task: DotNetCoreCLI@2
-        displayName: Restore
-        inputs:
-            command: restore
-            projects: "src/**/*.csproj"
-            noCache: true
-
-      - task: DotNetCoreCLI@2
-        displayName: Build
+      - task: Docker@2
+        displayName: Build Base Image
         inputs:
             command: build
-            projects: "src/**/*.csproj"
-            arguments: '--configuration release -p:Version=$(Build.BuildNumber)"'
+            dockerfile: docker/Build.Dockerfile
+            repository: das-secure-message-service-build
+            buildContext: .
+            tags: latest
 
-      - task: DotNetCoreCLI@2
-        displayName: Test
+      - task: Docker@2
+        displayName: Build Web Image
         inputs:
-            command: test
-            projects: "**/*.UnitTests.csproj"
-            arguments: "--configuration release --no-build"
-        enabled: false
+            command: build
+            dockerfile: docker/Web.Dockerfile
+            repository: apprenticeshipsdevops/das-secure-message-service
+            buildContext: .
+            tags: |
+                $(Build.BuildNumber)
 
-      - task: DotNetCoreCLI@2
-        displayName: "Publish Website"
+      - task: Docker@2
+        displayName: Build Api Image
         inputs:
-            command: publish
-            publishWebProjects: false
-            modifyOutputPath: false
-            zipAfterPublish: false
-            projects: "src/SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj"
-            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Web --no-restore --no-build"
+            command: build
+            dockerfile: docker/Api.Dockerfile
+            repository: apprenticeshipsdevops/das-secure-message-service-api
+            buildContext: .
+            tags: |
+                $(Build.BuildNumber)
 
-      - task: DotNetCoreCLI@2
-        displayName: "Publish API"
+      - task: Docker@2
+        displayName: Login to Docker Hub
         inputs:
-            command: publish
-            publishWebProjects: false
-            modifyOutputPath: false
-            zipAfterPublish: false
-            projects: "src/SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj"
-            arguments: "--configuration release --output $(system.defaultworkingdirectory)/publish/SFA.DAS.SecureMessageService.Api --no-restore --no-build"
+            command: login
+            containerRegistry: "Apprenticeships DevOps Docker Hub"
 
-      - publish: $(system.defaultworkingdirectory)/publish
-        artifact: publish
+      - task: Docker@2
+        displayName: Push Web Image
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service
+            tags: $(Build.BuildNumber)
+
+      - task: Docker@2
+        displayName: Push Api Image
+        inputs:
+            command: push
+            repository: apprenticeshipsdevops/das-secure-message-service-api
+            tags: $(Build.BuildNumber)
 
       - task: CopyFiles@2
         displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
@@ -90,90 +92,3 @@ stages:
         displayName: 'Publish Artifact'
         inputs:
           pathtoPublish: '$(build.artifactstagingdirectory)/publish'
-
-- stage: build_images
-  dependsOn: build
-  condition: succeeded()
-  displayName: Build Images
-  jobs:
-  - job: build_web_image
-    displayName: Build Web Image
-    pool:
-      name: "DAS - Continuous Integration"
-    steps:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: publish
-          path: $(system.defaultworkingdirectory)/publish
-
-      - task: Docker@2
-        displayName: Login to Docker Hub
-        inputs:
-            command: login
-            containerRegistry: "Apprenticeships DevOps Docker Hub"
-
-      - task: Docker@2
-        displayName: Build Web Image
-        inputs:
-            command: build
-            dockerfile: Web.Dockerfile
-            repository: apprenticeshipsdevops/das-secure-message-service
-            tags: |
-                $(Build.BuildNumber)
-                $(build.BuildNumber)-production
-
-      - task: Docker@2
-        displayName: Push Web Image
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service
-            tags: $(Build.BuildNumber)
-
-      - task: Docker@2
-        displayName: Push Web Image Latest if master
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service
-            tags: $(build.BuildNumber)-production
-
-  - job: build_api_image
-    displayName: Build Api Image
-    pool:
-      name: "DAS - Continuous Integration"
-    steps:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: publish
-          path: $(system.defaultworkingdirectory)/publish
-
-      - task: Docker@2
-        displayName: Login to Docker Hub
-        inputs:
-            command: login
-            containerRegistry: "Apprenticeships DevOps Docker Hub"
-
-      - task: Docker@2
-        displayName: Build Api Image
-        inputs:
-            command: build
-            dockerfile: Api.Dockerfile
-            repository: apprenticeshipsdevops/das-secure-message-service-api
-            tags: |
-                $(Build.BuildNumber)
-                $(build.BuildNumber)-production
-
-      - task: Docker@2
-        displayName: Push Api Image
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service-api
-            tags: $(Build.BuildNumber)
-
-      - task: Docker@2
-        displayName: Push Api Image Latest if master
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service-api
-            tags: $(build.BuildNumber)-production
