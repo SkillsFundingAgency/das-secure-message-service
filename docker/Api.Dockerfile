@@ -1,7 +1,5 @@
 FROM das-secure-message-service-build AS build
-COPY ./src ./src
 WORKDIR /src
-
 ENV PROJECT_PATH=SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj
 RUN dotnet publish $PROJECT_PATH -c Release --no-build -o /app
 

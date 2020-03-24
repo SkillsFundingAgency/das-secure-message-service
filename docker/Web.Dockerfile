@@ -1,5 +1,4 @@
 FROM das-secure-message-service-build AS build
-COPY ./src ./src
 WORKDIR /src
 
 ENV PROJECT_PATH=SFA.DAS.SecureMessageService.Web/SFA.DAS.SecureMessageService.Web.csproj
