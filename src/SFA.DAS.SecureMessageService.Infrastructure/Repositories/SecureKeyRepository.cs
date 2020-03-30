@@ -1,8 +1,6 @@
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using System;
+using System.Security.Cryptography;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
 {

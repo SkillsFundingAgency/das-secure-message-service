@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
 {
@@ -41,6 +41,5 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
 
             return !string.IsNullOrEmpty(message);
         }
-
     }
 }

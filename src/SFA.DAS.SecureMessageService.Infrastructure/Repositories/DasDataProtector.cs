@@ -1,4 +1,3 @@
-﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
 
@@ -17,10 +16,10 @@ namespace SFA.DAS.SecureMessageService.Infrastructure.Repositories
         {
             return dataProtector.Protect(message);
         }
-        
+
         public string Unprotect(string message)
         {
-             return dataProtector.Unprotect(message);
+            return dataProtector.Unprotect(message);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Your message";
     @model ViewMessageViewModel;
 }
@@ -7,14 +7,14 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Your message</h1>
 
-            <p class="govuk-body">The message has now been permanently deleted. Save the text below to a secure location.</p>
-            <div class="govuk-form-group">
-                <textarea class="govuk-textarea" rows="10" cols="50" id="message-text" name="message-text" readonly="readonly">@Model.Message</textarea>
-            </div>
+        <p class="govuk-body">The message has now been permanently deleted. Save the text below to a secure location.</p>
+        <div class="govuk-form-group">
+            <textarea class="govuk-textarea" rows="10" cols="50" id="message-text" name="message-text" readonly="readonly">@Model.Message</textarea>
+        </div>
 
-            <button type="button" class="govuk-button" id="copy-clipboard-btn" data-clipboard-target="#message-text"
-                data-placement='bottom'>Copy to clipboard
-            </button>            
+        <button type="button" class="govuk-button" id="copy-clipboard-btn" data-clipboard-target="#message-text"
+                data-placement='bottom'>
+            Copy to clipboard
+        </button>
     </div>
 </div>
-

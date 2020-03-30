@@ -1,10 +1,8 @@
-using System;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.SecureMessageService.Core.Entities;
-using SFA.DAS.SecureMessageService.Core.IServices;
-using SFA.DAS.SecureMessageService.Core.Services;
 using SFA.DAS.SecureMessageService.Core.IRepositories;
+using SFA.DAS.SecureMessageService.Core.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Core.UnitTests
@@ -68,7 +66,6 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             protectionRepository.VerifyAll();
             cacheRepository.VerifyAll();
             secureKeyRepository.VerifyAll();
-
         }
 
         [Test]
@@ -79,7 +76,7 @@ namespace SFA.DAS.SecureMessageService.Core.UnitTests
             cacheRepository.Setup(c => c.SaveAsync(It.IsAny<string>(), protectedMessage, ttl)).Returns(Task.FromResult(false));
             secureKeyRepository.Setup(c => c.Create()).Returns(key);
 
-             // Assert
+            // Assert
             Assert.ThrowsAsync<Exception>(async () => await service.Create(unprotectedMessage, ttl));
         }
 

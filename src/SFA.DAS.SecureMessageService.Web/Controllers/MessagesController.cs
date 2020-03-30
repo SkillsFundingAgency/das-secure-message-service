@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.SecureMessageService.Core.IServices;
 using SFA.DAS.SecureMessageService.Web.Models;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.SecureMessageService.Web.Controllers
 {
@@ -27,36 +23,37 @@ namespace SFA.DAS.SecureMessageService.Web.Controllers
         {
             // Check for message in cache
             var messageExists = await messageService.MessageExists(key);
-            if(!messageExists)
+            if (!messageExists)
             {
-                logger.LogError(1, $"Message with key {key} does not exist");
+                logger.LogError($"Message with key {key} does not exist");
                 return View("InvalidMessageKey");
             }
 
             // Create url and return view
-            var url = $"{Request.Scheme}://{Request.Host}/messages/{key}";
+            var url = $"{Request.Scheme}://{Request.Host}/messages/view/{key}";
             var showMessageUrlViewModel = new ShowMessageUrlViewModel() { Url = url };
             return View("ShowMessageUrl", showMessageUrlViewModel);
         }
 
-        [HttpGet("messages/{key}")]
+        [AllowAnonymous]
+        [HttpGet("view/{key}")]
         public async Task<IActionResult> ConfirmViewMessage(string key)
         {
             var messageExists = await messageService.MessageExists(key);
             ViewBag.MessageExists = messageExists;
-            logger.LogInformation(1, $"Message {key} exists: {messageExists.ToString()}");
+            logger.LogInformation($"Message {key} exists: {messageExists.ToString()}");
 
             return View("ConfirmViewMessage");
         }
 
-
-        [HttpPost("messages/{key}")]
+        [AllowAnonymous]
+        [HttpPost("view/{key}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ViewMessage(string key)
         {
-            logger.LogInformation(1, $"Attempting to retrieve message: {key}");
+            logger.LogInformation($"Attempting to retrieve message: {key}");
             var message = await messageService.Retrieve(key);
-            logger.LogInformation(1, $"Message {key} has been removed from cache");
+            logger.LogInformation($"Message {key} has been removed from cache");
 
             var viewMessageViewModel = new ViewMessageViewModel() { Message = message };
             return View(viewMessageViewModel);
