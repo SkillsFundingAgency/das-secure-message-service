@@ -43,11 +43,7 @@ spec:
         service: das-tool-service
     spec:
       containers:
-      - env:
-        - name: BaseUrl
-          value: {{IngressHost}}
-
-        image: {{WebImage}}
+      - image: {{WebImage}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:

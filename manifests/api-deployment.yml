@@ -44,8 +44,6 @@ spec:
     spec:
       containers:
       - env:
-        - name: BaseUrl
-          value: {{IngressHost}}
         - name: AzureAdTenantId
           value: {{AzureAdTenantId}}
         - name: AzureADResourceId
