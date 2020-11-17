@@ -53,14 +53,10 @@ namespace SFA.DAS.SecureMessageService.Api
                     .AddJwtBearer(auth =>
                     {
                         auth.Authority =
-                            $"https://login.microsoftonline.com/{_configuration["AzureAdTenantId"]}";
+                            $"https://login.microsoftonline.com/{_configuration["AzureAd:Tenant"]}";
                         auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                         {
-                            ValidAudiences = new List<string>
-                            {
-                            _configuration["AzureADResourceId"],
-                            _configuration["AzureADClientId"]
-                            }
+                            ValidAudiences = _configuration["AzureAd:Identifier"].Split(',')
                         };
                     });
 
