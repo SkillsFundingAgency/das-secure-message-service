@@ -44,12 +44,10 @@ spec:
     spec:
       containers:
       - env:
-        - name: AzureAdTenantId
-          value: {{AzureAdTenantId}}
-        - name: AzureADResourceId
-          value: {{AzureADResourceId}}
-        - name: AzureADClientId
-          value: {{AzureADClientId}}
+        - name: AzureAd__Tenant
+          value: {{AzureAdTenant}}
+        - name: AzureAd__Identifier
+          value: {{AzureAdIdentifier}}
         image: {{ApiImage}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service-api
