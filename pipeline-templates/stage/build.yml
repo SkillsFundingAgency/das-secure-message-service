@@ -61,17 +61,3 @@ stages:
           command: push
           repository: apprenticeshipsdevops/das-secure-message-service-api
           tags: $(Build.BuildNumber)
-
-      - task: CopyFiles@2
-        displayName: Copy Files to $(build.artifactstagingdirectory)
-        inputs:
-          contents: |
-            manifests/**
-          targetFolder: $(build.artifactstagingdirectory)/publish
-          OverWrite: true
-
-      - task: PublishPipelineArtifact@1
-        displayName: Publish Artifact
-        inputs:
-          pathtoPublish: $(build.artifactstagingdirectory)/publish
-          artifactName: das-secure-message-service
