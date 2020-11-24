@@ -6,6 +6,7 @@ trigger:
   paths:
     include:
       - manifests/*
+      - pipeline-templates/*
       - src/*
       - azure-pipelines.yml
       - Dockerfile
@@ -19,7 +20,7 @@ pool:
     name: "DAS - Continuous Integration"
 
 stages:
-- template: /pipeline-templates/stage/build.yml
+- template: pipeline-templates/stage/build.yml
 
 - stage: DeployTo_DEV
   displayName: DeployTo_DEV
@@ -33,7 +34,7 @@ stages:
   - name: IngressHost
     value: test-tools.apprenticeships.education.gov.uk
   jobs:
-  - template: /pipeline-templates/job/deploy.yml
+  - template: pipeline-templates/job/deploy.yml
     parameters:
       Environment: DEV
       KubectlVersion: $(KubectlVersion)
