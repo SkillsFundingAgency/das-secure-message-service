@@ -45,10 +45,10 @@ spec:
       containers:
       - env:
         - name: AzureAd__Tenant
-          value: {{AzureAdTenant}}
+          value: {{Tenant}}
         - name: AzureAd__Identifier
-          value: {{AzureAdIdentifier}}
-        image: {{ApiImage}}
+          value: {{SecureMessageServiceApiIdentifierUri}}
+        image: {{SecureMessageServiceApiImage}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service-api
         ports:

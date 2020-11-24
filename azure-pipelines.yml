@@ -24,7 +24,6 @@ stages:
   displayName: DeployTo_DEV
   variables:
   - group: Dev Management Resources
-  - group: TEST Shared Resources
   - group: Tools - ENV - TEST
   - name: KubectlVersion
     value: 1.18.8

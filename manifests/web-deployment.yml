@@ -43,7 +43,7 @@ spec:
         service: das-tool-service
     spec:
       containers:
-      - image: {{WebImage}}
+      - image: {{SecureMessageServiceWebImage}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:
