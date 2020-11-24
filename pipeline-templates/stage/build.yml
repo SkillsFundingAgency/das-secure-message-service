@@ -6,6 +6,8 @@ stages:
     displayName: Build
     pool:
       name: DAS - Continuous Integration
+    workspace:
+      clean: all
     steps:
       - task: UseGitVersion@5
         inputs:
@@ -73,4 +75,4 @@ stages:
         displayName: Publish Artifact
         inputs:
           pathtoPublish: $(build.artifactstagingdirectory)/publish
-          artifactName: das-secure-message-service
+          artifactName: das-secure-message
