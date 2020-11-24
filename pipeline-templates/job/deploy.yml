@@ -41,7 +41,7 @@ jobs:
             namespace: engineering
             command: apply
             useConfigurationFile: true
-            configuration: '$(Pipeline.Workspace)/das-secure-message-service/manifests/web-ingress-config'
+            configuration: $(Pipeline.Workspace)/das-secure-message-service/manifests/web-ingress.yml
             useClusterAdmin: true
         - task: Kubernetes@1
           displayName: Deploy API Ingress
