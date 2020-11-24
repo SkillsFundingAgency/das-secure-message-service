@@ -6,8 +6,6 @@ stages:
     displayName: Build
     pool:
       name: DAS - Continuous Integration
-    workspace:
-      clean: all
     steps:
       - task: UseGitVersion@5
         inputs:
@@ -70,9 +68,10 @@ stages:
           contents: |
             manifests/**
           targetFolder: $(build.artifactstagingdirectory)/publish
+          OverWrite: true
 
       - task: PublishPipelineArtifact@1
         displayName: Publish Artifact
         inputs:
           pathtoPublish: $(build.artifactstagingdirectory)/publish
-          artifactName: das-secure-message
+          artifactName: das-secure-message-service
