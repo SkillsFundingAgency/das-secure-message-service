@@ -3,7 +3,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: das-secure-message-service-web
-  namespace: {{Namespace}}
+  namespace: engineering
 spec:
   entryPoints:
     - websecure
@@ -24,4 +24,4 @@ spec:
     secretName: '{{TlsSecretName}}-correct-chain'
     options:
       name: enforce-tls-12
-      namespace: {{Namespace}}
+      namespace: engineering
