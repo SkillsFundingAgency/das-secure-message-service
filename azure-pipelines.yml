@@ -13,10 +13,6 @@ trigger:
 
 pr: none
 
-resources:
-  repositories:
-  - repository: self
-
 stages:
 - template: pipeline-templates/stage/build.yml
 
