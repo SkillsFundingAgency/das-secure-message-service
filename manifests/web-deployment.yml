@@ -45,7 +45,7 @@ spec:
       nodeSelector:
         agentpool: tools01
       containers:
-      - image: {{SecureMessageServiceWebImage}}
+      - image: apprenticeshipsdevops/das-secure-message-service:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:
