@@ -42,11 +42,11 @@ spec:
         app: das-secure-message-service-web
         service: das-tool-service
     spec:
+      nodeSelector:
+        agentpool: tools01
       containers:
       - image: {{SecureMessageServiceWebImage}}
         imagePullPolicy: IfNotPresent
-        nodeSelector:
-          agentpool: tools01
         name: das-secure-message-service
         ports:
         - containerPort: 80

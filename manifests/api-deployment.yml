@@ -42,6 +42,8 @@ spec:
         app: das-secure-message-service-api
         service: das-tool-service
     spec:
+      nodeSelector:
+        agentpool: tools01
       containers:
       - env:
         - name: AzureAd__Tenant
@@ -50,8 +52,6 @@ spec:
           value: {{SecureMessageServiceApiIdentifierUri}}
         image: {{SecureMessageServiceApiImage}}
         imagePullPolicy: IfNotPresent
-        nodeSelector:
-          agentpool: tools01
         name: das-secure-message-service-api
         ports:
         - containerPort: 80
