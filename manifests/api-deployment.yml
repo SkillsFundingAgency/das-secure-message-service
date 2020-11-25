@@ -50,6 +50,8 @@ spec:
           value: {{SecureMessageServiceApiIdentifierUri}}
         image: {{SecureMessageServiceApiImage}}
         imagePullPolicy: IfNotPresent
+        nodeSelector:
+          agentpool: tools01
         name: das-secure-message-service-api
         ports:
         - containerPort: 80
