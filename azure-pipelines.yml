@@ -1,6 +1,16 @@
 resources:
   repositories:
   - repository: self
+  - repository: das-platform-building-blocks
+    type: github
+    name: SkillsFundingAgency/das-platform-building-blocks
+    ref: refs/tags/0.2.19
+    endpoint: SFA
+  - repository: das-platform-automation
+    type: github
+    name: SkillsFundingAgency/das-platform-automation
+    ref: refs/tags/4.2.7
+    endpoint: SFA
 
 trigger:
   batch: true
@@ -33,7 +43,10 @@ stages:
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
+      AppGatewayName: $(AKSSharedAppGatewayName)
+      AppGatewayResourceGroup: $(AKSSharedNodeResourceGroupName)
       Environment: DEV
+      KeyVaultName: $(SharedKeyVaultName)
       KubectlVersion: $(KubectlVersion)
       ServiceConnection: SFA-DAS-DevTest-ARM
       AksResourceGroup: $(AKSResourceGroupName)
