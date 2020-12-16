@@ -13,7 +13,7 @@ spec:
   - host: {{IngressHost}}
     http:
       paths:
-      - path: /messages
+      - path: /messages/*
         backend:
           serviceName: das-secure-message-service-web
           servicePort: 80
