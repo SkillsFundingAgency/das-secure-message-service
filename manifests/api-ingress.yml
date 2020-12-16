@@ -1,27 +1,19 @@
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: extensions/v1beta1
+kind: Ingress
 metadata:
   name: das-secure-message-service-api
   namespace: engineering
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: {{TlsSecretName}}
+    appgw.ingress.kubernetes.io/health-probe-path: "/api/messages/health"
 spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`{{IngressHost}}`) && PathPrefix(`/api/messages`)
-      kind: Rule
-      middlewares:
-        - name: secured
-      services:
-        - name: das-secure-message-service-api
-          port: 80
-          healthCheck:
-            path: /api/messages/health
-            host: {{IngressHost}}
-            intervalSeconds: 7
-            timeoutSeconds: 60
-  tls:
-    secretName: '{{TlsSecretName}}-correct-chain'
-    options:
-      name: enforce-tls-12
-      namespace: engineering
+  rules:
+  - host: {{IngressHost}}
+    http:
+      paths:
+      - path: /api/messages
+        backend:
+          serviceName: das-secure-message-service-api
+          servicePort: 80
