@@ -27,6 +27,10 @@ trigger:
 
 pr: none
 
+variables:
+- name: KubectlVersion
+  value: 1.18.8
+
 stages:
 - template: pipeline-templates/stage/build.yml
 
@@ -35,8 +39,6 @@ stages:
   variables:
   - group: Dev Management Resources
   - group: Tools - ENV - TEST
-  - name: KubectlVersion
-    value: 1.18.8
   ##TO DO: update IngressHost value in 'Tools - ENV - TEST' and remove from pipeline file
   - name: IngressHost
     value: test-tools.apprenticeships.education.gov.uk
@@ -52,4 +54,19 @@ stages:
       AksResourceGroup: $(AKSResourceGroupName)
       KubernetesCluster: $(AKSSharedClusterName)
 
-## deploy to PROD stage
+- stage: DeployTo_PROD
+  displayName: DeployTo_PROD
+  variables:
+  - group: Prod Management Resources
+  - group: Tools - ENV - PROD
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      AppGatewayName: $(AKSSharedAppGatewayName)
+      AppGatewayResourceGroup: $(AKSSharedNodeResourceGroupName)
+      Environment: PROD
+      KeyVaultName: $(SharedKeyVaultName)
+      KubectlVersion: $(KubectlVersion)
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      AksResourceGroup: $(AKSResourceGroupName)
+      KubernetesCluster: $(AKSSharedClusterName)
