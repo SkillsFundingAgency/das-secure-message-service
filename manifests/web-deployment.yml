@@ -58,6 +58,12 @@ spec:
         envFrom:
           - configMapRef:
               name: das-tool-service-shared-config
+        readinessProbe:
+          httpGet:
+            path: "/messages/health"
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 1
       volumes:
         - name: shared-app-settings
           configMap:
