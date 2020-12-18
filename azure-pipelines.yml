@@ -38,7 +38,7 @@ stages:
   displayName: DeployTo_DEV
   variables:
   - group: Dev Management Resources
-  - group: Tools - ENV - TEST
+  - group: TEST Tools Service Shared
   ##TO DO: update IngressHost value in 'Tools - ENV - TEST' and remove from pipeline file
   - name: IngressHost
     value: test-tools.apprenticeships.education.gov.uk
@@ -58,7 +58,7 @@ stages:
   displayName: DeployTo_PROD
   variables:
   - group: Prod Management Resources
-  - group: Tools - ENV - PROD
+  - group: PROD Tools Service Shared
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
