@@ -12,6 +12,9 @@ jobs:
   environment: ${{ parameters.Environment }}
   pool:
     name: DAS - Continuous Deployment
+  variables:
+  - name: KubernetesNamespace
+    value: tools
   strategy:
     runOnce:
       deploy:
@@ -34,6 +37,12 @@ jobs:
           displayName: Install Kubectl ${{ parameters.KubectlVersion }}
           inputs:
             kubectlVersion: ${{ parameters.KubectlVersion }}
+        - template: azure-pipelines-templates/deploy/step/create-kubernetes-namespace.yml@das-platform-building-blocks
+          parameters:
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AzureSubscription: ${{ parameters.ServiceConnection }}
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            Namespace: $(KubernetesNamespace)
         - template: azure-pipelines-templates/deploy/step/create-kubernetes-ingress.yml@das-platform-building-blocks
           parameters:
             AksClusterName: ${{ parameters.KubernetesCluster }}
@@ -43,7 +52,7 @@ jobs:
             AzureServiceConnection: ${{ parameters.ServiceConnection }}
             IngressManifestPath: $(Pipeline.Workspace)/das-secure-message-service/manifests/web-ingress.yml
             KeyVaultName: ${{ parameters.KeyVaultName }}
-            Namespace: engineering
+            Namespace: $(KubernetesNamespace)
         - template: azure-pipelines-templates/deploy/step/create-kubernetes-ingress.yml@das-platform-building-blocks
           parameters:
             AksClusterName: ${{ parameters.KubernetesCluster }}
@@ -53,7 +62,7 @@ jobs:
             AzureServiceConnection: ${{ parameters.ServiceConnection }}
             IngressManifestPath: $(Pipeline.Workspace)/das-secure-message-service/manifests/api-ingress.yml
             KeyVaultName: ${{ parameters.KeyVaultName }}
-            Namespace: engineering
+            Namespace: $(KubernetesNamespace)
         - task: Kubernetes@1
           displayName: Create Web Deployment
           inputs:
@@ -61,7 +70,7 @@ jobs:
             azureSubscriptionEndpoint: ${{ parameters.ServiceConnection }}
             azureResourceGroup: ${{ parameters.AksResourceGroup }}
             kubernetesCluster: ${{ parameters.KubernetesCluster }}
-            namespace: engineering
+            namespace: $(KubernetesNamespace)
             command: apply
             useConfigurationFile: true
             configuration: $(Pipeline.Workspace)/das-secure-message-service/manifests/web-deployment.yml
@@ -73,7 +82,7 @@ jobs:
             azureSubscriptionEndpoint: ${{ parameters.ServiceConnection }}
             azureResourceGroup: ${{ parameters.AksResourceGroup }}
             kubernetesCluster: ${{ parameters.KubernetesCluster }}
-            namespace: engineering
+            namespace: $(KubernetesNamespace)
             command: apply
             useConfigurationFile: true
             configuration: $(Pipeline.Workspace)/das-secure-message-service/manifests/api-deployment.yml
