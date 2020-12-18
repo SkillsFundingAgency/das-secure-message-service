@@ -6,7 +6,7 @@ metadata:
     app: das-secure-message-service-api
     service: das-tool-service
   name: das-secure-message-service-api
-  namespace: engineering
+  namespace: {{KubernetesNamespace}}
 spec:
   ports:
   - port: 80
@@ -24,7 +24,7 @@ metadata:
     app: das-secure-message-service-api
     service: das-tool-service
   name: das-secure-message-service-api
-  namespace: engineering
+  namespace: {{KubernetesNamespace}}
 spec:
   replicas: 1
   selector:
