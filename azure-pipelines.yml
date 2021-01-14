@@ -38,7 +38,7 @@ stages:
   displayName: DeployTo_DEV
   variables:
   - group: Dev Management Resources
-  - group: TEST Tools Service Shared
+  - group: DEV Tools Service Shared
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
