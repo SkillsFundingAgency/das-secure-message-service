@@ -6,6 +6,8 @@ stages:
     displayName: Build
     pool:
       name: DAS - Continuous Integration
+      demands:
+        - docker
     steps:
       - task: UseGitVersion@5
         inputs:
