@@ -6,7 +6,7 @@ metadata:
     app: das-secure-message-service-web
     service: das-tool-service
   name: das-secure-message-service-web
-  namespace: {{Namespace}}
+  namespace: {{KubernetesNamespace}}
 spec:
   ports:
   - port: 80
@@ -24,7 +24,7 @@ metadata:
     app: das-secure-message-service-web
     service: das-tool-service
   name: das-secure-message-service-web
-  namespace: {{Namespace}}
+  namespace: {{KubernetesNamespace}}
 spec:
   replicas: 1
   selector:
@@ -42,8 +42,10 @@ spec:
         app: das-secure-message-service-web
         service: das-tool-service
     spec:
+      nodeSelector:
+        agentpool: tools01
       containers:
-      - image: {{WebImage}}
+      - image: apprenticeshipsdevops/das-secure-message-service:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:
@@ -56,6 +58,12 @@ spec:
         envFrom:
           - configMapRef:
               name: das-tool-service-shared-config
+        readinessProbe:
+          httpGet:
+            path: "/messages/health"
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 1
       volumes:
         - name: shared-app-settings
           configMap:

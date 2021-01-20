@@ -1,3 +1,17 @@
+resources:
+  repositories:
+  - repository: self
+  - repository: das-platform-building-blocks
+    type: github
+    name: SkillsFundingAgency/das-platform-building-blocks
+    ref: refs/tags/0.3.1
+    endpoint: SFA
+  - repository: das-platform-automation
+    type: github
+    name: SkillsFundingAgency/das-platform-automation
+    ref: refs/tags/4.2.7
+    endpoint: SFA
+
 trigger:
   batch: true
   branches:
@@ -6,6 +20,7 @@ trigger:
   paths:
     include:
       - manifests/*
+      - pipeline-templates/*
       - src/*
       - azure-pipelines.yml
       - Dockerfile
@@ -13,82 +28,43 @@ trigger:
 pr: none
 
 variables:
-  - group: 'Dev Management Resources'
-
-pool:
-    name: "DAS - Continuous Integration"
+- name: KubectlVersion
+  value: 1.18.8
 
 stages:
-- stage: build
-  displayName: Build
+- template: pipeline-templates/stage/build.yml
+
+- stage: DeployTo_DEV
+  displayName: DeployTo_DEV
+  variables:
+  - group: Dev Management Resources
+  - group: DEV Tools Service Shared
   jobs:
-  - job: build_image
-    displayName: Build
-    steps:
-      - task: UseGitVersion@5
-        inputs:
-          versionSpec: 5.x
-          useConfigFile: true
-          configFilePath: GitVersion.yml
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      AppGatewayName: $(AKSSharedAppGatewayName)
+      AppGatewayResourceGroup: $(AKSSharedNodeResourceGroupName)
+      Environment: DEV
+      KeyVaultName: $(SharedKeyVaultName)
+      KubectlVersion: $(KubectlVersion)
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      AksResourceGroup: $(AKSResourceGroupName)
+      KubernetesCluster: $(AKSSharedClusterName)
 
-      - task: Docker@2
-        displayName: Build Base Image
-        inputs:
-            command: build
-            dockerfile: docker/Build.Dockerfile
-            repository: das-secure-message-service-build
-            buildContext: .
-            tags: latest
-
-      - task: Docker@2
-        displayName: Build Web Image
-        inputs:
-            command: build
-            dockerfile: docker/Web.Dockerfile
-            repository: apprenticeshipsdevops/das-secure-message-service
-            buildContext: .
-            tags: |
-                $(Build.BuildNumber)
-
-      - task: Docker@2
-        displayName: Build Api Image
-        inputs:
-            command: build
-            dockerfile: docker/Api.Dockerfile
-            repository: apprenticeshipsdevops/das-secure-message-service-api
-            buildContext: .
-            tags: |
-                $(Build.BuildNumber)
-
-      - task: Docker@2
-        displayName: Login to Docker Hub
-        inputs:
-            command: login
-            containerRegistry: "Apprenticeships DevOps Docker Hub"
-
-      - task: Docker@2
-        displayName: Push Web Image
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service
-            tags: $(Build.BuildNumber)
-
-      - task: Docker@2
-        displayName: Push Api Image
-        inputs:
-            command: push
-            repository: apprenticeshipsdevops/das-secure-message-service-api
-            tags: $(Build.BuildNumber)
-
-      - task: CopyFiles@2
-        displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-        inputs:
-          contents: |
-            azure/**
-            manifests/**
-          targetFolder: '$(build.artifactstagingdirectory)/publish'
-
-      - task: PublishBuildArtifacts@1
-        displayName: 'Publish Artifact'
-        inputs:
-          pathtoPublish: '$(build.artifactstagingdirectory)/publish'
+- stage: DeployTo_PROD
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  displayName: DeployTo_PROD
+  variables:
+  - group: Prod Management Resources
+  - group: PROD Tools Service Shared
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      AppGatewayName: $(AKSSharedAppGatewayName)
+      AppGatewayResourceGroup: $(AKSSharedNodeResourceGroupName)
+      Environment: PROD
+      KeyVaultName: $(SharedKeyVaultName)
+      KubectlVersion: $(KubectlVersion)
+      ServiceConnection: SFA-DAS-DevTest-ARM
+      AksResourceGroup: $(AKSResourceGroupName)
+      KubernetesCluster: $(AKSSharedClusterName)

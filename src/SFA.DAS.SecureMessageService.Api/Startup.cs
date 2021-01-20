@@ -72,6 +72,8 @@ namespace SFA.DAS.SecureMessageService.Api
                 });
             }
 
+            services.AddHealthChecks();
+
             services.AddDistributedCache(_configuration, _environment);
 
             services.AddMvc(options =>
@@ -139,6 +141,7 @@ namespace SFA.DAS.SecureMessageService.Api
                 });
 
             app.UseAuthentication();
+            app.UseHealthChecks("/health");
             app.UseHttpsRedirection();
             app.UseMvc();
         }

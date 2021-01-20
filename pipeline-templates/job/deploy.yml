@@ -1,0 +1,82 @@
+parameters:
+  AppGatewayName:
+  AppGatewayResourceGroup:
+  Environment:
+  KeyVaultName:
+  KubectlVersion:
+  ServiceConnection:
+  AksResourceGroup:
+  KubernetesCluster:
+
+jobs:
+- deployment: DeployTo_${{ parameters.Environment }}
+  environment: ${{ parameters.Environment }}
+  pool:
+    name: DAS - Continuous Deployment
+  variables:
+  - name: KubernetesNamespace
+    value: tools
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+          path: das-secure-message-service/
+        - task: replacetokens@3
+          displayName: Tokenise manifests
+          inputs:
+            rootDirectory: $(Pipeline.Workspace)/das-secure-message-service/manifests
+            targetFiles: '**/*.yml'
+            encoding: 'auto'
+            writeBOM: true
+            actionOnMissing: fail
+            keepToken: false
+            tokenPrefix: '{{'
+            tokenSuffix: '}}'
+            verbosity: detailed
+        - template: azure-pipelines-templates/deploy/step/kubernetes-create-namespace.yml@das-platform-building-blocks
+          parameters:
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AzureServiceConnection: ${{ parameters.ServiceConnection }}
+            Namespace: $(KubernetesNamespace)
+        # create web ingress
+        - template: azure-pipelines-templates/deploy/step/kubernetes-create-ingress.yml@das-platform-building-blocks
+          parameters:
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AppGatewayName: ${{ parameters.AppGatewayName }}
+            AppGatewayResourceGroup: ${{ parameters.AppGatewayResourceGroup }}
+            AzureServiceConnection: ${{ parameters.ServiceConnection }}
+            IngressManifestPath: $(Pipeline.Workspace)/das-secure-message-service/manifests/web-ingress.yml
+            KeyVaultName: ${{ parameters.KeyVaultName }}
+            Namespace: $(KubernetesNamespace)
+        # create api ingress
+        - template: azure-pipelines-templates/deploy/step/kubernetes-create-ingress.yml@das-platform-building-blocks
+          parameters:
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AppGatewayName: ${{ parameters.AppGatewayName }}
+            AppGatewayResourceGroup: ${{ parameters.AppGatewayResourceGroup }}
+            AzureServiceConnection: ${{ parameters.ServiceConnection }}
+            IngressManifestPath: $(Pipeline.Workspace)/das-secure-message-service/manifests/api-ingress.yml
+            KeyVaultName: ${{ parameters.KeyVaultName }}
+            Namespace: $(KubernetesNamespace)
+        # apply web deployment
+        - template: azure-pipelines-templates/deploy/step/kubernetes-apply-manifest.yml@das-platform-building-blocks
+          parameters:
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AzureServiceConnection: ${{ parameters.ServiceConnection }}
+            KubectlVersion: ${{ parameters.KubectlVersion }}
+            ManifestFile: $(Pipeline.Workspace)/das-secure-message-service/manifests/web-deployment.yml
+            Namespace: $(KubernetesNamespace)
+        # apply api deployment
+        - template: azure-pipelines-templates/deploy/step/kubernetes-apply-manifest.yml@das-platform-building-blocks
+          parameters:
+            AksClusterName: ${{ parameters.KubernetesCluster }}
+            AksResourceGroupName: ${{ parameters.AksResourceGroup }}
+            AzureServiceConnection: ${{ parameters.ServiceConnection }}
+            KubectlVersion: ${{ parameters.KubectlVersion }}
+            ManifestFile: $(Pipeline.Workspace)/das-secure-message-service/manifests/api-deployment.yml
+            Namespace: $(KubernetesNamespace)

@@ -6,7 +6,7 @@ metadata:
     app: das-secure-message-service-api
     service: das-tool-service
   name: das-secure-message-service-api
-  namespace: {{Namespace}}
+  namespace: {{KubernetesNamespace}}
 spec:
   ports:
   - port: 80
@@ -24,7 +24,7 @@ metadata:
     app: das-secure-message-service-api
     service: das-tool-service
   name: das-secure-message-service-api
-  namespace: {{Namespace}}
+  namespace: {{KubernetesNamespace}}
 spec:
   replicas: 1
   selector:
@@ -42,13 +42,15 @@ spec:
         app: das-secure-message-service-api
         service: das-tool-service
     spec:
+      nodeSelector:
+        agentpool: tools01
       containers:
       - env:
         - name: AzureAd__Tenant
-          value: {{AzureAdTenant}}
+          value: {{Tenant}}
         - name: AzureAd__Identifier
-          value: {{AzureAdIdentifier}}
-        image: {{ApiImage}}
+          value: {{SecureMessageServiceApiIdentifierUri}}
+        image: apprenticeshipsdevops/das-secure-message-service-api:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service-api
         ports:
@@ -61,6 +63,12 @@ spec:
         envFrom:
           - configMapRef:
               name: das-tool-service-shared-config
+        readinessProbe:
+          httpGet:
+            path: "/api/messages/health"
+            port: 80
+          periodSeconds: 10
+          timeoutSeconds: 1
       volumes:
         - name: shared-app-settings
           configMap:
