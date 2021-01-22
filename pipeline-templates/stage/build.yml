@@ -7,7 +7,8 @@ stages:
     pool:
       name: DAS - Continuous Integration
       demands:
-        - docker
+      - Agent.OS -equals Linux
+      - docker
     steps:
       - task: UseGitVersion@5
         inputs:
