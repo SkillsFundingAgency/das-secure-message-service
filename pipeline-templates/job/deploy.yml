@@ -12,7 +12,7 @@ jobs:
 - deployment: DeployTo_${{ parameters.Environment }}
   environment: ${{ parameters.Environment }}
   pool:
-    name: DAS - Continuous Deployment
+    name: DAS - Continuous Deployment Agents
   variables:
   - name: KubernetesNamespace
     value: tools
