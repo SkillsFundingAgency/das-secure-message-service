@@ -14,11 +14,12 @@ stages:
     - template: azure-pipelines-templates/build/step/dockerfile-build.yml@das-platform-building-blocks
       parameters:
         ContainerRegistryName: $(PublicAcrName)
-        ServiceConnection: ${{ parameters.ServiceConnection }}
+        DockerfileFullname: docker/Web.Dockerfile
         ImageName: $(WebContainerImageName)
+        ServiceConnection: ${{ parameters.ServiceConnection }}
     - template: azure-pipelines-templates/build/step/dockerfile-build.yml@das-platform-building-blocks
       parameters:
         ContainerRegistryName: $(PublicAcrName)
-        ServiceConnection: ${{ parameters.ServiceConnection }}
+        DockerfileFullname: docker/Api.Dockerfile
         ImageName: $(ApiContainerImageName)
-
+        ServiceConnection: ${{ parameters.ServiceConnection }}
