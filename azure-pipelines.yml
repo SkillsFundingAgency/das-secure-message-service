@@ -28,6 +28,7 @@ trigger:
 pr: none
 
 variables:
+- group: Release Management Resources
 - name: KubectlVersion
   value: 1.18.8
 - name: WebContainerImageName
