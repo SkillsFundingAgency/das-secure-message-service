@@ -16,11 +16,9 @@ stages:
         ContainerRegistryName: $(PublicAcrName)
         ServiceConnection: ${{ parameters.ServiceConnection }}
         ImageName: $(WebContainerImageName)
-        WorkingDirectory: $(Build.SourcesDirectory)/src/SFA.DAS.SecureMessageService.Web/
     - template: azure-pipelines-templates/build/step/dockerfile-build.yml@das-platform-building-blocks
       parameters:
         ContainerRegistryName: $(PublicAcrName)
         ServiceConnection: ${{ parameters.ServiceConnection }}
         ImageName: $(ApiContainerImageName)
-        WorkingDirectory: $(Build.SourcesDirectory)/src/SFA.DAS.SecureMessageService.Api/
 
