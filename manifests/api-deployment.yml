@@ -50,7 +50,7 @@ spec:
           value: {{Tenant}}
         - name: AzureAd__Identifier
           value: {{SecureMessageServiceApiIdentifierUri}}
-        image: apprenticeshipsdevops/das-secure-message-service-api:{{BuildNumber}}
+        image: {{PublicAcrName}}.azurecr.io/{{ApiContainerImageName}}:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service-api
         ports:

@@ -45,7 +45,7 @@ spec:
       nodeSelector:
         agentpool: tools01
       containers:
-      - image: apprenticeshipsdevops/das-secure-message-service:{{BuildNumber}}
+      - image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:

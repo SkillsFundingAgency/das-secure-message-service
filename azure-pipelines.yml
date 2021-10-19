@@ -30,9 +30,15 @@ pr: none
 variables:
 - name: KubectlVersion
   value: 1.18.8
+- name: WebContainerImageName
+  value: das-secure-message-service
+- name: ApiContainerImageName
+  value: das-secure-message-service-api
 
 stages:
 - template: pipeline-templates/stage/build.yml
+  parameters:
+    ServiceConnection: SFA-DIG-Prod-ARM
 
 - stage: DeployTo_DEV
   displayName: DeployTo_DEV
