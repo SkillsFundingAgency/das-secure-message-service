@@ -1,4 +1,12 @@
-FROM das-secure-message-service-build:latest AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
+
+ENV PROJECT_PATH=SFA.DAS.SecureMessageService.sln
+COPY ./src ./src
+WORKDIR /src
+
+RUN dotnet restore $PROJECT_PATH
+RUN dotnet build $PROJECT_PATH -c Release --no-restore
+RUN dotnet test -c Release --no-restore --no-build
 
 WORKDIR /src
 ENV PROJECT_PATH=SFA.DAS.SecureMessageService.Api/SFA.DAS.SecureMessageService.Api.csproj
