@@ -1,5 +1,5 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: das-secure-message-service-api
@@ -14,10 +14,16 @@ spec:
     http:
       paths:
       - path: /api/messages
+        pathType: Exact
         backend:
-          serviceName: das-secure-message-service-api
-          servicePort: 80
+          service:
+            name: das-secure-message-service-api
+            port:
+              number: 80
       - path: /api/messages/*
+        pathType: Prefix
         backend:
-          serviceName: das-secure-message-service-api
-          servicePort: 80
+          service:
+            name: das-secure-message-service-api
+            port:
+              number: 80
