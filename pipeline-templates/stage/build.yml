@@ -17,10 +17,12 @@ stages:
         ServiceConnection: ${{ parameters.ServiceConnection }}
         ImageName: $(WebContainerImageName)
         AdditionalArgs: --file docker/Web.Dockerfile
+        BranchToCreateLatestTag: master
     - template: azure-pipelines-templates/build/step/dockerfile-build.yml@das-platform-building-blocks
       parameters:
         ContainerRegistryName: $(PublicAcrName)
         ServiceConnection: ${{ parameters.ServiceConnection }}
         ImageName: $(ApiContainerImageName)
         AdditionalArgs: --file docker/Api.Dockerfile
+        BranchToCreateLatestTag: master
 
