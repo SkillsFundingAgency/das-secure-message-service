@@ -28,7 +28,7 @@ trigger:
 variables:
 - group: Release Management Resources
 - name: KubectlVersion
-  value: 1.18.8
+  value: 1.23.8
 - name: WebContainerImageName
   value: das-secure-message-service
 - name: ApiContainerImageName
@@ -38,23 +38,6 @@ stages:
 - template: pipeline-templates/stage/build.yml
   parameters:
     ServiceConnection: SFA-DIG-Prod-ARM
-
-- stage: DeployTo_DEV
-  displayName: DeployTo_DEV
-  variables:
-  - group: Dev Management Resources
-  - group: DEV Tools Service Shared
-  jobs:
-  - template: pipeline-templates/job/deploy.yml
-    parameters:
-      AppGatewayName: $(AKSSharedAppGatewayName)
-      AppGatewayResourceGroup: $(AKSSharedNodeResourceGroupName)
-      Environment: DEV
-      KeyVaultName: $(SharedKeyVaultName)
-      KubectlVersion: $(KubectlVersion)
-      ServiceConnection: SFA-DAS-DevTest-ARM
-      AksResourceGroup: $(AKSResourceGroupName)
-      KubernetesCluster: $(AKSSharedClusterName)
 
 - stage: DeployTo_PREPROD
   displayName: DeployTo_PREPROD
