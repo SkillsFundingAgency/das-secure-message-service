@@ -1,29 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <ProjectGuid>{8F405392-2855-4D44-9D9F-4CA8E7D330A9}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NewFolder\**" />
-    <Content Remove="NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
-    <None Remove="NewFolder\**" />
-  </ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.13.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="2.2.5" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
-    <PackageReference Include="NLog" Version="4.5.11" />
-    <PackageReference Include="NLog.Schema" Version="4.5.11" />
-    <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.0.0" />
+    <!-- Transitive Updates -->
+    <!-- Microsoft.Extensions.Caching.StackExchangeRedis -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

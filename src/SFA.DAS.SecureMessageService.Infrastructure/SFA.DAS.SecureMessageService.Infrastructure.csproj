@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <ProjectGuid>{80E4DE42-B6D0-43EA-809F-EBC4507610A8}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="2.2.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.8" />
   </ItemGroup>
 
   <ItemGroup>

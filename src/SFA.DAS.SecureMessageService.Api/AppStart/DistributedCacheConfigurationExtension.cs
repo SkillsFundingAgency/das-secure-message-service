@@ -9,7 +9,7 @@ namespace SFA.DAS.SecureMessageService.Api.AppStart
 {
     public static class DistributedCacheConfigurationExtension
     {
-        public static void AddDistributedCache(this IServiceCollection services, IConfiguration configuration, IHostingEnvironment env)
+        public static void AddDistributedCache(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

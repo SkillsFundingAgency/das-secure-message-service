@@ -1,21 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <ProjectGuid>{B38F3B37-18E1-4161-AAA1-D94A44F6BA98}</ProjectGuid>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="2.5.1">
+    <PackageReference Include="coverlet.msbuild" Version="3.1.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Moq" Version="4.10.1" />
-    <PackageReference Include="nunit" Version="3.11.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="nunit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
+
+    <!-- Transitive Updates -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
