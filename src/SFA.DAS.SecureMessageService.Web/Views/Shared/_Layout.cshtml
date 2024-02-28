@@ -11,7 +11,7 @@
 
 <body class="govuk-template__body {{ bodyClass }}">
     <script>
-        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+        document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
     </script>
 
     <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
@@ -19,7 +19,7 @@
     <header class="govuk-header " role="banner" data-module="header">
         <div class="govuk-header__container govuk-width-container">
             <div class="govuk-header__content">
-                <a href="/" class="govuk-header__link govuk-header__link--service-name">
+                <a href="/" class="govuk-header__link govuk-header__service-name">
                     Tool Service
                 </a>
             </div>
@@ -38,7 +38,7 @@
         <div class="govuk-phase-banner">
             <p class="govuk-phase-banner__content">
                 <strong class="govuk-tag govuk-phase-banner__content__tag">
-                    beta
+                    Beta
                 </strong>
                 <span class="govuk-phase-banner__text">
                     This tool is for internal use only.
@@ -57,4 +57,5 @@
     <script type="text/javascript" no-cdn src="@Url.Content("~/js/clipboard.min.js")"></script>
     <script type="text/javascript" no-cdn src="@Url.Content("~/js/clipboard_button.js")"></script>
 </body>
+
 </html>
