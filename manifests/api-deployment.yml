@@ -43,7 +43,7 @@ spec:
         service: das-tool-service
     spec:
       nodeSelector:
-        agentpool: tools01
+        agentpool: {{toolsAgentName}}
       containers:
       - env:
         - name: AzureAd__Tenant
