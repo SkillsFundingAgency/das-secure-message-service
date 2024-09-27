@@ -43,7 +43,7 @@ spec:
         service: das-tool-service
     spec:
       nodeSelector:
-        agentpool: tools01
+        agentpool: {{toolsAgentName}}
       containers:
       - image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
