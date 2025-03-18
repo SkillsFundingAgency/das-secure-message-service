@@ -7,3 +7,5 @@
 | Production  |[![Development](https://sfa-gov-uk.vsrm.visualstudio.com/_apis/public/Release/badge/c39e0c0b-7aff-4606-b160-3566f3bbce23/243/745)]()|
 
 Inspired by snappass, the secure messaging service is a safe way to send one time contextless messages.
+
+This repository is owned by DAS Devops and has been upgraded to .NET8.
