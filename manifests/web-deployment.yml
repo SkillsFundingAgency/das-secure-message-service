@@ -11,7 +11,7 @@ spec:
   ports:
   - port: 80
     protocol: TCP
-    targetPort: 80
+    targetPort: 8080
   selector:
     app: das-secure-message-service-web
   type: ClusterIP
@@ -31,13 +31,12 @@ spec:
     matchLabels:
       app: das-secure-message-service-web
   strategy:
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: das-secure-message-service-web
         service: das-tool-service
@@ -45,26 +44,36 @@ spec:
       nodeSelector:
         agentpool: {{toolsAgentName}}
       containers:
-      - image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
-        imagePullPolicy: IfNotPresent
-        name: das-secure-message-service
-        ports:
-        - containerPort: 80
-          protocol: TCP
-        resources:
-          requests:
-            cpu: 25m
-            memory: 512Mi
-        envFrom:
-          - configMapRef:
-              name: das-tool-service-shared-config
-        readinessProbe:
-          httpGet:
-            path: "/messages/health"
-            port: 80
-          periodSeconds: 10
-          timeoutSeconds: 1
-      volumes:
-        - name: shared-app-settings
-          configMap:
-            name: das-tool-service-shared-config
+        - name: das-secure-message-service
+          image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 8080
+
+          resources:
+            requests:
+              cpu: 25m
+              memory: 512Mi
+
+          envFrom:
+            - configMapRef:
+                name: das-tool-service-shared-config
+
+          readinessProbe:
+            httpGet:
+              path: /messages/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /messages/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
