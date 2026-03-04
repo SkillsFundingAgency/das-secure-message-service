@@ -57,7 +57,7 @@ stages:
       KubernetesCluster: $(AKSSharedClusterName)
 
 - stage: DeployTo_PROD
-#  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: DeployTo_PROD
   variables:
   - group: Prod Management Resources
