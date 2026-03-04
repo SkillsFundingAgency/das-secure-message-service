@@ -22,7 +22,7 @@ builder.Services.AddOptions();
 
 builder.Services.AddAntiforgery(options =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
 builder.Services.AddAuthentication(configuration);
@@ -37,7 +37,7 @@ builder.Services.AddMvc(options =>
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 })
-.AddControllersAsServices();;
+.AddControllersAsServices();
 
 builder.Services.AddApplicationInsightsTelemetry(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
 
@@ -47,26 +47,28 @@ builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(10);
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.IsEssential = true;
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 if (!environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-} else {
+}
+else
+{
     app.UseDeveloperExceptionPage();
 }
-
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto
-});
 
 app.Use(async (context, next) =>
 {
@@ -82,17 +84,13 @@ app.UseStaticFiles();
 app.Use(async (context, next) =>
 {
     if (context.Response.Headers.ContainsKey("X-Frame-Options"))
-    {
         context.Response.Headers.Remove("X-Frame-Options");
-    }
 
     context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
-
     await next();
 
     if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
     {
-        //Re-execute the request so the user gets the error page
         var originalPath = context.Request.Path.Value;
         context.Items["originalPath"] = originalPath;
         context.Request.Path = "/error/404";
@@ -104,6 +102,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseHealthChecks("/health");
 app.UseAuthorization();
+app.UseSession();
 
 app.UseEndpoints(endpoints =>
 {
