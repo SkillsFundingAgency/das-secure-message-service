@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="2.2.0" />
 
     <!-- Microsoft.Extensions.Caching.StackExchangeRedis -->
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>
