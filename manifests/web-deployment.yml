@@ -45,7 +45,10 @@ spec:
       nodeSelector:
         agentpool: {{toolsAgentName}}
       containers:
-      - image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
+      - env:
+        - name: OTEL_SERVICE_NAME
+          value: das-secure-message-service-web
+        image: {{PublicAcrName}}.azurecr.io/{{WebContainerImageName}}:{{BuildNumber}}
         imagePullPolicy: IfNotPresent
         name: das-secure-message-service
         ports:

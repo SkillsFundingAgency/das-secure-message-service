@@ -6,6 +6,8 @@ namespace SFA.DAS.SecureMessageService.Core.Configuration
     {
         public const string ApplicationName = "das-tools-service";
 
+        public const string DisabledAppInsightsConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000";
+
         public static Dictionary<int, string> TtlValues
         {
             get => new Dictionary<int, string>()
