@@ -2,16 +2,23 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using SFA.DAS.SecureMessageService.Api.AppStart;
 using SFA.DAS.SecureMessageService.Api.Configuration;
+using SFA.DAS.SecureMessageService.Core.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
 builder.Services.AddServices(configuration);
-builder.Services.AddApplicationInsightsTelemetry(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+var appInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = string.IsNullOrEmpty(appInsightsConnectionString)
+        ? ApplicationConstants.DisabledAppInsightsConnectionString
+        : appInsightsConnectionString;
+});
 
 if (!environment.IsDevelopment())
 {
@@ -62,20 +69,10 @@ builder.Services.AddSwaggerGen(c =>
             Scheme = "Bearer"
         });
 
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
         {
             {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    },
-                    Scheme = "oauth2",
-                    Name = "Bearer",
-                    In = ParameterLocation.Header,
-                },
+                new OpenApiSecuritySchemeReference("Bearer", document),
                 new List<string>()
             }
         });

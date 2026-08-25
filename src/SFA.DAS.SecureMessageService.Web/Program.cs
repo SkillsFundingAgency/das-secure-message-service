@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Logging;
+using SFA.DAS.SecureMessageService.Core.Configuration;
 using SFA.DAS.SecureMessageService.Web.AppStart;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,13 @@ builder.Services.AddMvc(options =>
 })
 .AddControllersAsServices();
 
-builder.Services.AddApplicationInsightsTelemetry(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+var appInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = string.IsNullOrEmpty(appInsightsConnectionString)
+        ? ApplicationConstants.DisabledAppInsightsConnectionString
+        : appInsightsConnectionString;
+});
 
 builder.Services.AddDistributedCache(configuration, environment);
 
